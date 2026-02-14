@@ -1,0 +1,10 @@
+project_id = "YOUR_PROJECT_REF"
+
+[functions.handle-purchase]
+verify_jwt = false
+
+[functions.moderate-content]
+verify_jwt = true
+
+[functions.process-referral]
+verify_jwt = true

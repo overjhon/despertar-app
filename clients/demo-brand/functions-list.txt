@@ -1,0 +1,49 @@
+﻿Functions/RPCs detected:
+-----------------------------------
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION has_role(_user_id uuid, _role app_role)
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION calculate_level(xp integer)
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION get_level_name(level integer)
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION get_xp_for_level(level integer)
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION generate_referral_code()
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION create_notification(
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION check_rate_limit(
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION update_post_likes_count()
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION update_post_comments_count()
+00000000000001_functions.sql: CREATE OR REPLACE FUNCTION public.handle_new_user()
+20251016130723_e8acb54a-8cb2-4e82-bd00-68fa7245c9d3.sql: CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+20251016130723_e8acb54a-8cb2-4e82-bd00-68fa7245c9d3.sql: CREATE OR REPLACE FUNCTION public.handle_new_user()
+20251016135728_2998404f-790c-4f5f-9636-6db15eab8df8.sql: CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
+20251016135728_2998404f-790c-4f5f-9636-6db15eab8df8.sql: CREATE OR REPLACE FUNCTION public.assign_admin_role()
+20251016154439_f2b3421c-2839-4e98-bc8b-ebc24622aed9.sql: CREATE OR REPLACE FUNCTION public.calculate_level(xp integer)
+20251016154439_f2b3421c-2839-4e98-bc8b-ebc24622aed9.sql: CREATE OR REPLACE FUNCTION public.get_level_name(level integer)
+20251016154439_f2b3421c-2839-4e98-bc8b-ebc24622aed9.sql: CREATE OR REPLACE FUNCTION public.get_xp_for_level(level integer)
+20251016154541_d2234aba-f6fc-4a39-b50e-3366737b8104.sql: CREATE OR REPLACE FUNCTION public.calculate_level(xp integer)
+20251016154541_d2234aba-f6fc-4a39-b50e-3366737b8104.sql: CREATE OR REPLACE FUNCTION public.get_level_name(level integer)
+20251016154541_d2234aba-f6fc-4a39-b50e-3366737b8104.sql: CREATE OR REPLACE FUNCTION public.get_xp_for_level(level integer)
+20251016155052_a84f55be-cf0b-436b-b8c7-18122ae9c785.sql: CREATE OR REPLACE FUNCTION public.update_testimonial_likes_count()
+20251016155052_a84f55be-cf0b-436b-b8c7-18122ae9c785.sql: CREATE OR REPLACE FUNCTION public.update_testimonial_comments_count()
+20251016160034_ca6b50d4-8d55-408b-bbb0-17d974dae0ba.sql: CREATE OR REPLACE FUNCTION public.create_notification(
+20251016170338_bad7cfd7-8888-4a3e-8702-e42179c75f34.sql: CREATE OR REPLACE FUNCTION public.update_post_likes_count()
+20251016170338_bad7cfd7-8888-4a3e-8702-e42179c75f34.sql: CREATE OR REPLACE FUNCTION public.update_post_comments_count()
+20251016181603_c9a81331-48e4-416f-a885-d6a2bc9afa97.sql: CREATE OR REPLACE FUNCTION get_user_id_by_email(user_email TEXT)
+20251016181603_c9a81331-48e4-416f-a885-d6a2bc9afa97.sql: CREATE OR REPLACE FUNCTION sync_profile_email()
+20251016181710_09c0a5c0-cb4c-4970-9d4a-087b8225397d.sql: CREATE OR REPLACE FUNCTION get_user_id_by_email(user_email TEXT)
+20251017172300_4e15f883-51fe-49e7-bb30-c8e41a0370eb.sql: CREATE OR REPLACE FUNCTION public.generate_referral_code()
+20251017173942_487d899a-2726-4fa5-8394-ce30bcec68ec.sql: CREATE OR REPLACE FUNCTION update_creation_likes_count()
+20251017173942_487d899a-2726-4fa5-8394-ce30bcec68ec.sql: CREATE OR REPLACE FUNCTION mark_question_answered()
+20251017183056_a9a4fc3f-f99c-4f45-b557-4bb759b92f86.sql: CREATE OR REPLACE FUNCTION public.update_push_subscriptions_updated_at()
+20251018142952_1aabc2d7-958e-4e69-977c-87947d9c6d72.sql: CREATE OR REPLACE FUNCTION audit_pending_purchases()
+20251018142952_1aabc2d7-958e-4e69-977c-87947d9c6d72.sql: CREATE OR REPLACE FUNCTION cleanup_old_pending_purchases()
+20251018145433_9da88cba-d8f4-4236-b6e2-b61805b5d07f.sql: CREATE OR REPLACE FUNCTION public.check_rate_limit(
+20251018145433_9da88cba-d8f4-4236-b6e2-b61805b5d07f.sql: CREATE OR REPLACE FUNCTION public.reset_rate_limit(
+20251018145433_9da88cba-d8f4-4236-b6e2-b61805b5d07f.sql: CREATE OR REPLACE FUNCTION public.cleanup_old_rate_limits()
+20251018205203_5b6ee8df-c39a-43ff-a9ff-7fd66b4359ad.sql: CREATE OR REPLACE FUNCTION get_ebook_id_for_product(p_product_id text)
+20251019173653_ebd62299-fe4a-4337-8ba3-507e20924f8f.sql: CREATE OR REPLACE FUNCTION public.inc_comments_count()
+20251019173653_ebd62299-fe4a-4337-8ba3-507e20924f8f.sql: CREATE OR REPLACE FUNCTION public.dec_comments_count()
+20251019173653_ebd62299-fe4a-4337-8ba3-507e20924f8f.sql: CREATE OR REPLACE FUNCTION public.inc_likes_count()
+20251019173653_ebd62299-fe4a-4337-8ba3-507e20924f8f.sql: CREATE OR REPLACE FUNCTION public.dec_likes_count()
+20251115120000_increment_daily_stats.sql: CREATE OR REPLACE FUNCTION public.increment_daily_stats(
+20251115121000_add_xp_atomic.sql: CREATE OR REPLACE FUNCTION public.add_xp_atomic(
+20251117144700_rate_limit_stubs.sql: create or replace function public.reset_rate_limit(
+20251117162000_licenses.sql: create or replace function public.extract_hostname(p_origin text)
+20251117162000_licenses.sql: create or replace function public.validate_license(p_license_key text, p_origin text)

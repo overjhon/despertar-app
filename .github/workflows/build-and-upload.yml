@@ -1,0 +1,65 @@
+name: Build and Upload Artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      brand_name:
+        description: "VITE_BRAND_NAME"
+        required: false
+      base_url:
+        description: "VITE_BASE_URL"
+        required: false
+      default_description:
+        description: "VITE_DEFAULT_DESCRIPTION"
+        required: false
+      pwa_description:
+        description: "VITE_PWA_DESCRIPTION"
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.SUPABASE_TARGET_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_TARGET_ANON_KEY }}
+      VITE_SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_TARGET_REF }}
+      VITE_BRAND_NAME: ${{ github.event.inputs.brand_name }}
+      VITE_BASE_URL: ${{ github.event.inputs.base_url }}
+      VITE_DEFAULT_DESCRIPTION: ${{ github.event.inputs.default_description }}
+      VITE_PWA_DESCRIPTION: ${{ github.event.inputs.pwa_description }}
+      VITE_ENABLE_ADMIN: 'false'
+      VITE_BUILD_TARGET: 'client'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps (conditional)
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Build
+        run: npm run build
+
+      - name: Scan dist for secrets
+        run: |
+          set -e
+          if grep -R -E "SUPABASE_SERVICE_ROLE_KEY|KIWIFY_WEBHOOK_SECRET|SUPABASE_ACCESS_TOKEN|FIREBASE_SERVER_KEY" dist; then
+            echo "❌ Secret-like token found in dist" && exit 1
+          else
+            echo "✅ No secret tokens found in dist"
+          fi
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+
+      - name: Finish
+        run: echo "BUILD_ARTIFACT_DONE"

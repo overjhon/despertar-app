@@ -1,0 +1,56 @@
+name: Supabase Seed Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_db_url:
+        description: "Supabase SOURCE DB URL"
+        required: false
+      target_db_url:
+        description: "Supabase TARGET DB URL"
+        required: false
+      tables:
+        description: "Comma-separated tables to copy (e.g., public.ebooks,public.badges)"
+        required: false
+        default: "public.ebooks,public.badges"
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_DB_URL: ${{ github.event.inputs.source_db_url || secrets.SUPABASE_SOURCE_DB_URL }}
+      TARGET_DB_URL: ${{ github.event.inputs.target_db_url || secrets.SUPABASE_TARGET_DB_URL }}
+      TABLES: ${{ github.event.inputs.tables }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Validate URLs
+        run: |
+          if [ -z "$SOURCE_DB_URL" ]; then echo "Missing SOURCE_DB_URL"; exit 1; fi
+          if [ -z "$TARGET_DB_URL" ]; then echo "Missing TARGET_DB_URL"; exit 1; fi
+
+      - name: Dump data
+        run: |
+          IFS="," read -ra TARR <<< "$TABLES"
+          DUMPFILE=dump-data.sql
+          rm -f $DUMPFILE
+          for T in "${TARR[@]}"; do
+            pg_dump "$SOURCE_DB_URL" --data-only --table "$T" --no-owner --no-privileges >> $DUMPFILE
+          done
+          echo "DUMP_OK"
+
+      - name: Import data
+        run: |
+          psql "$TARGET_DB_URL" -f dump-data.sql
+          echo "IMPORT_OK"
+
+      - name: Finish
+<<<<<<< HEAD
+        run: echo "SEED_DONE"
+=======
+        run: echo "SEED_DONE"
+>>>>>>> b02d50d (feat: whitelabel provisioning automation, security hardening, and workflows updates)

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Security Headers - Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self' data: blob: https:;
+      script-src 'self' 'unsafe-inline' https://cdn.gpteng.co https://lovable.dev https://*.lovableproject.com https://connect.facebook.net https://cdnjs.cloudflare.com blob:;
+      script-src-elem 'self' 'unsafe-inline' https://cdn.gpteng.co https://lovable.dev https://*.lovableproject.com https://connect.facebook.net https://cdnjs.cloudflare.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com data:;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovableproject.com https://lovable.dev https://www.facebook.com https://*.facebook.com https://*.facebook.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com ws: wss:;
+      media-src 'self' blob: https://*.supabase.co;
+      worker-src 'self' blob: https://cdnjs.cloudflare.com;
+      frame-src 'self' blob: data: https://*.supabase.co https://docs.google.com https://drive.google.com https://*.googleusercontent.com https://*.lovableproject.com https://*.lovable.app https://www.facebook.com https://*.facebook.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self' https://www.facebook.com;
+    ">
+    
+    <!-- Security Headers - Additional Protection -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <!-- Cache Control for Dynamic Assets -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <title>Ebook Platform - Sua Plataforma de Ebooks</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#C44F72" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Ebook Platform" />
+    <meta name="description" content="Plataforma whitelabel de ebooks com gamificação e comunidade integrada.">
+    <meta name="author" content="Ebook Platform" />
+    <meta name="keywords" content="ebooks, plataforma, educação, gamificação, comunidade">
+
+    
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://example.com" />
+    <meta property="og:image" content="https://example.com/og-image.jpg">
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Ebook Platform - Plataforma de ebooks" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Ebook Platform" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://example.com/og-image.jpg">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://example.com/" />
+
+    <!-- DNS Prefetch & Preconnect -->
+    <link rel="dns-prefetch" href="https://YOUR_PROJECT_REF.supabase.co" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://YOUR_PROJECT_REF.supabase.co" crossorigin>
+    
+    <!-- Preload Critical Fonts -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+    
+    <!-- Load Google Fonts with optimized loading -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'; this.onload=null;">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
+    
+    <!-- Critical inline CSS for above-the-fold content -->
+    <style>
+      body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+      .bg-gradient-hero{background:linear-gradient(135deg,#C44F72,#E6B8C8)}
+      @font-face{font-family:'Inter';font-display:swap}
+      @font-face{font-family:'Playfair Display';font-display:swap}
+      #boot-failsafe{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+      #boot-failsafe h2{margin:0 0 1rem;font-size:1.5rem;color:#333}
+      #boot-failsafe p{margin:0 0 1.5rem;color:#666}
+      #boot-failsafe button{background:#C44F72;color:#fff;border:none;padding:0.75rem 1.5rem;border-radius:0.5rem;font-size:1rem;font-weight:600;cursor:pointer;margin:0.5rem}
+      #boot-failsafe button:hover{background:#a63f5d}
+      #boot-failsafe.hidden{display:none}
+      .boot-spinner{width:40px;height:40px;border:4px solid #f3f3f3;border-top:4px solid #C44F72;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem}
+      @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    </style>
+    
+    <!-- Structured Data - Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Ebook Platform",
+      "url": "https://example.com",
+      "logo": "https://example.com/logo.png",
+      "description": "Plataforma whitelabel de ebooks com gamificação e comunidade",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "availableLanguage": "Portuguese"
+      }
+    }
+    </script>
+    
+    <!-- Structured Data - WebSite -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Ebook Platform",
+        "url": "https://example.com",
+        "description": "Plataforma whitelabel de ebooks com gamificação",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://example.com/library?search={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <meta property="og:title" content="Ebook Platform - Plataforma de Ebooks">
+  <meta name="twitter:title" content="Ebook Platform - Plataforma de Ebooks">
+  <meta property="og:description" content="Plataforma whitelabel de ebooks com gamificação e comunidade integrada.">
+  <meta name="twitter:description" content="Plataforma whitelabel de ebooks com gamificação e comunidade integrada.">
+</head>
+
+  <body>
+    <div id="boot-failsafe">
+      <div class="boot-spinner"></div>
+      <h2>Carregando...</h2>
+      <p id="boot-message">Aguarde um momento</p>
+      <div id="boot-actions" style="display:none">
+        <button onclick="window.__safeRefresh()">🔄 Atualizar app agora</button>
+        <button onclick="window.location.href='/?flush=1'">🧹 Limpar cache</button>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+name: Supabase Replicate
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: "Supabase SOURCE project ref"
+        required: false
+      target_ref:
+        description: "Supabase TARGET project ref"
+        required: false
+      target_url:
+        description: "Supabase TARGET URL (https://<ref>.supabase.co)"
+        required: false
+
+jobs:
+  replicate:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_REF: ${{ github.event.inputs.source_ref || secrets.SUPABASE_SOURCE_REF }}
+      TARGET_REF: ${{ github.event.inputs.target_ref || secrets.SUPABASE_TARGET_REF }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      TARGET_URL: ${{ github.event.inputs.target_url || secrets.SUPABASE_TARGET_URL }}
+      TARGET_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      KIWIFY_WEBHOOK_SECRET: ${{ secrets.KIWIFY_WEBHOOK_SECRET }}
+      FIREBASE_SERVER_KEY: ${{ secrets.FIREBASE_SERVER_KEY }}
+    steps:
+      - name: Clean possible leftovers
+        run: |
+          rm -rf mvp-starter/.import || true
+          git config --global --add safe.directory /github/workspace
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Supabase CLI
+        # Instalar Supabase CLI sem npm global (mais suportado).
+        # Usar binário oficial para Linux.
+        run: |
+          curl -sSL "https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz" -o supabase_linux_amd64.tar.gz
+          if [ ! -s supabase_linux_amd64.tar.gz ]; then
+            echo "Arquivo não baixado corretamente.";
+            exit 1;
+          fi
+          tar -xz -C /usr/local/bin -f supabase_linux_amd64.tar.gz
+
+      - name: Check Supabase CLI version
+        run: supabase --version
+
+      - name: Login Supabase
+        run: supabase login --token "$SUPABASE_ACCESS_TOKEN"
+
+      - name: Validate inputs
+        run: |
+          if [ -z "$SOURCE_REF" ]; then echo "Missing SOURCE_REF"; exit 1; fi
+          if [ -z "$TARGET_REF" ]; then echo "Missing TARGET_REF"; exit 1; fi
+
+      - name: Link SOURCE and pull schema
+        run: |
+          supabase link --project-ref "$SOURCE_REF"
+          supabase db pull
+
+      - name: Link TARGET and push schema
+        run: |
+          supabase link --project-ref "$TARGET_REF"
+          supabase db push
+
+      - name: Set function secrets (TARGET)
+        run: |
+          if [ -n "$TARGET_URL" ]; then supabase functions secrets set SUPABASE_URL="$TARGET_URL" --project-ref "$TARGET_REF"; fi
+          if [ -n "$TARGET_SERVICE_ROLE_KEY" ]; then supabase functions secrets set SUPABASE_SERVICE_ROLE_KEY="$TARGET_SERVICE_ROLE_KEY" --project-ref "$TARGET_REF"; fi
+          if [ -n "$KIWIFY_WEBHOOK_SECRET" ]; then supabase functions secrets set KIWIFY_WEBHOOK_SECRET="$KIWIFY_WEBHOOK_SECRET" --project-ref "$TARGET_REF"; fi
+          if [ -n "$FIREBASE_SERVER_KEY" ]; then supabase functions secrets set FIREBASE_SERVER_KEY="$FIREBASE_SERVER_KEY" --project-ref "$TARGET_REF"; fi
+
+      - name: Deploy all Edge Functions (TARGET)
+        run: |
+          for fn in handle-purchase claim-purchases moderate-content process-referral process-referral-reward seed-database send-push send-test-webhook; do
+            supabase functions deploy "$fn" --project-ref "$TARGET_REF"
+          done
+
+      - name: Finish
+        run: echo "REPLICATE_DONE"
