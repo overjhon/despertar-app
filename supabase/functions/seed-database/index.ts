@@ -26,8 +26,8 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('URL')!;
+    const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')!;
     const supabaseLicenseClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const origin = req.headers.get('origin') || req.headers.get('referer') || '';
@@ -62,15 +62,15 @@ serve(async (req) => {
     // Clean old seed data if requested
     if (cleanOldData) {
       console.log('🗑️ Cleaning old seed data...');
-      
+
       // Find seed users (those with @example.com emails)
       const { data: seedProfiles } = await supabase
         .from('profiles')
         .select('id, email')
         .like('email', '%@example.com');
-      
+
       const seedUserIds = seedProfiles?.map(p => p.id) || [];
-      
+
       if (seedUserIds.length > 0) {
         console.log(`Found ${seedUserIds.length} seed users to clean`);
 
@@ -274,8 +274,8 @@ serve(async (req) => {
 
     if (ebooksError || !ebooks || ebooks.length === 0) {
       return new Response(
-        JSON.stringify({ 
-          error: 'No active ebooks found. Please add ebooks before seeding data.' 
+        JSON.stringify({
+          error: 'No active ebooks found. Please add ebooks before seeding data.'
         }),
         { status: 400, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
       );
@@ -345,8 +345,8 @@ serve(async (req) => {
   } catch (error) {
     console.error('Seed error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
       }),
       { status: 500, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
     );

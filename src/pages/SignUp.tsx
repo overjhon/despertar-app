@@ -12,6 +12,7 @@ import { serverRateLimiter } from '@/lib/serverRateLimiter';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 import { trackCompleteRegistration } from '@/lib/facebookPixel';
+import { SocialLoginButton } from '@/components/auth/SocialLoginButton';
 
 const SignUp = () => {
   const [fullName, setFullName] = useState('');
@@ -63,7 +64,7 @@ const SignUp = () => {
       passwordValidation.data,
       nameValidation.data
     );
-    
+
     if (error) {
       if (error.message.includes('already registered')) {
         setError('Este email já está cadastrado. Faça login.');
@@ -73,20 +74,20 @@ const SignUp = () => {
     } else {
       // Reset server-side rate limit on successful signup
       await serverRateLimiter.reset('signup', emailValidation.data);
-      
+
       // Track successful registration with Meta Pixel
       trackCompleteRegistration();
-      
+
       // FASE 2.3: Processar código de indicação se existir
       const urlParams = new URLSearchParams(window.location.search);
       const referralCode = urlParams.get('ref') || localStorage.getItem('referral_code');
-      
+
       if (referralCode) {
         // Aguardar um momento para garantir que o usuário foi criado
         setTimeout(async () => {
           try {
             const { data: { user: currentUser } } = await supabase.auth.getUser();
-            
+
             if (currentUser) {
               await supabase.functions.invoke('process-referral-reward', {
                 body: {
@@ -95,7 +96,7 @@ const SignUp = () => {
                   newUserId: currentUser.id,
                 },
               });
-              
+
               // Limpar código do localStorage
               localStorage.removeItem('referral_code');
             }
@@ -106,7 +107,7 @@ const SignUp = () => {
         }, 1000);
       }
     }
-    
+
     setLoading(false);
   };
 
@@ -122,8 +123,22 @@ const SignUp = () => {
             Crie sua conta e comece sua jornada
           </CardDescription>
         </CardHeader>
+        <CardContent className="space-y-4 pt-6">
+          {/* Google SignUp */}
+          <SocialLoginButton provider="google" text="Criar conta com Google" />
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Ou crie com email</span>
+            </div>
+          </div>
+        </CardContent>
+
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-0">
             {error && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
                 {error}

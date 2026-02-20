@@ -33,8 +33,8 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('URL')!;
+    const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')!;
     const supabaseLicenseClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const origin = req.headers.get('origin') || req.headers.get('referer') || '';
@@ -53,7 +53,7 @@ serve(async (req) => {
     } catch (error) {
       console.error('[REFERRAL] Invalid JSON:', error);
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'JSON inválido',
           code: 'INVALID_JSON'
         }),
@@ -65,7 +65,7 @@ serve(async (req) => {
     if (!validation.success) {
       console.error('[REFERRAL] Validation failed:', validation.error.flatten());
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Dados inválidos',
           code: 'VALIDATION_ERROR',
           details: validation.error.flatten().fieldErrors
@@ -93,7 +93,7 @@ serve(async (req) => {
       }
 
       const { data: codeData } = await supabaseLicenseClient.rpc('generate_referral_code');
-      
+
       const { data, error } = await supabaseLicenseClient
         .from('referrals')
         .insert({
@@ -107,7 +107,7 @@ serve(async (req) => {
       if (error) {
         console.error('[REFERRAL] Database error creating referral:', error);
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'Erro ao criar código de indicação',
             code: 'REFERRAL_CREATE_ERROR'
           }),
@@ -166,7 +166,7 @@ serve(async (req) => {
       if (updateError) {
         console.error('[REFERRAL] Error updating conversion:', updateError);
         return new Response(
-          JSON.stringify({ 
+          JSON.stringify({
             error: 'Erro ao processar conversão',
             code: 'CONVERSION_ERROR'
           }),
@@ -216,10 +216,10 @@ serve(async (req) => {
   } catch (error) {
     // Log detailed error server-side only
     console.error('[REFERRAL] Internal error:', error);
-    
+
     // Return generic error to client
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Erro ao processar indicação. Tente novamente.',
         code: 'REFERRAL_ERROR'
       }),

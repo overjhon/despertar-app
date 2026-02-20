@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 interface PayloadFilters {
-  role: 'any'|'admin'|'user'|'moderator';
+  role: 'any' | 'admin' | 'user' | 'moderator';
   minLevel: number;
   maxLevel: number;
   streakMin: number;
@@ -22,8 +22,8 @@ const json = (data: any, init: ResponseInit = {}) => new Response(JSON.stringify
 });
 
 // Minimal Supabase client (Edge) via fetch
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+const SUPABASE_URL = Deno.env.get('URL');
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SERVICE_ROLE_KEY');
 
 async function supabaseQuery(path: string, method: string, body?: any) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {

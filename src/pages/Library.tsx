@@ -56,7 +56,7 @@ const Library = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [levelName, setLevelName] = useState('');
-  
+
   const { gamificationData } = useGamification();
 
   useEffect(() => {
@@ -64,12 +64,12 @@ const Library = () => {
       navigate('/login');
       return;
     }
-    
+
     const initializeLibrary = async () => {
       // Auto-claim purchases silently
       try {
         const { data, error } = await supabase.functions.invoke('claim-purchases');
-        
+
         if (!error && data?.claimed_count > 0) {
           const ebookNames = data.ebooks?.slice(0, 2).join(', ') || 'seus ebooks';
           toast({
@@ -166,7 +166,7 @@ const Library = () => {
     ebook.author?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const continueReading = filteredEbooks.filter(e => 
+  const continueReading = filteredEbooks.filter(e =>
     e.isPurchased && progress[e.id] && progress[e.id].progress_percentage > 0 && !progress[e.id].completed
   );
 
@@ -186,167 +186,175 @@ const Library = () => {
 
   return (
     <>
-      <PageSEO 
+      <PageSEO
         title={`Minha Biblioteca - ${BRAND_NAME}`}
         description={DEFAULT_DESCRIPTION}
         path="/library"
       />
       <div className={`min-h-screen bg-gradient-subtle ${isMobile ? 'pb-20' : ''}`}>
-      <header className="bg-card/95 backdrop-blur-lg border-b border-primary/20 sticky top-0 z-10 shadow-elegant">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow hover:scale-110 transition-transform duration-300">
-                <BookOpen className="w-6 h-6 text-white" />
+        <header className="bg-card/95 backdrop-blur-lg border-b border-primary/20 sticky top-0 z-10 shadow-elegant">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                    {BRAND_NAME}
+                  </h1>
+                  <p className="text-xs text-muted-foreground">Sua biblioteca pessoal ✨</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                  {BRAND_NAME}
-                </h1>
-                <p className="text-xs text-muted-foreground">Sua biblioteca pessoal ✨</p>
+              <div className="flex items-center gap-2">
+                {isMobile && (
+                  <InstallAppButton
+                    variant="ghost"
+                    size="icon"
+                    hideText={true}
+                    showIcon={true}
+                  />
+                )}
+
+                {gamificationData && levelName && !isMobile && (
+                  <LevelBadge level={gamificationData.current_level} levelName={levelName} />
+                )}
+                {!isMobile && (
+                  <Link to="/packages">
+                    <Button variant="premium" size="sm" className="gap-2">
+                      <Package className="w-4 h-4" />
+                      Pacotes
+                    </Button>
+                  </Link>
+                )}
+                {isAdmin && (
+                  <>
+                    <Link to="/admin/manage">
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        {!isMobile && "Gerenciar"}
+                      </Button>
+                    </Link>
+                    <Link to="/admin/upload">
+                      <Button variant="default" size="sm" className="gap-2">
+                        <Upload className="w-4 h-4" />
+                        {!isMobile && "Upload"}
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                <NotificationBell />
+                {!isMobile && (
+                  <>
+                    <Link to="/challenges">
+                      <Button variant="ghost" size="icon" title="Desafios">
+                        <Target className="w-5 h-5" />
+                      </Button>
+                    </Link>
+                    <Link to="/leaderboard">
+                      <Button variant="ghost" size="icon" title="Ranking">
+                        <Trophy className="w-5 h-5" />
+                      </Button>
+                    </Link>
+                    <Link to="/community">
+                      <Button variant="ghost" size="icon" title="Comunidade">
+                        <Heart className="w-5 h-5" />
+                      </Button>
+                    </Link>
+                    <Link to="/profile">
+                      <Button variant="ghost" size="icon" title="Meu Perfil">
+                        <User className="w-5 h-5" />
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" size="icon" onClick={signOut} title="Sair">
+                      <LogOut className="w-5 h-5" />
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {isMobile && (
-                <InstallAppButton 
-                  variant="ghost" 
-                  size="icon" 
-                  hideText={true}
-                  showIcon={true}
-                />
-              )}
-              
-              {gamificationData && levelName && !isMobile && (
-                <LevelBadge level={gamificationData.current_level} levelName={levelName} />
-              )}
-              {!isMobile && (
-                <Link to="/packages">
-                  <Button variant="premium" size="sm" className="gap-2">
-                    <Package className="w-4 h-4" />
-                    Pacotes
-                  </Button>
-                </Link>
-              )}
-              {isAdmin && (
-                <Link to="/admin/upload">
-                  <Button variant="default" size="sm" className="gap-2">
-                    <Upload className="w-4 h-4" />
-                    {!isMobile && "Upload"}
-                  </Button>
-                </Link>
-              )}
-              <NotificationBell />
-              {!isMobile && (
-                <>
-                  <Link to="/challenges">
-                    <Button variant="ghost" size="icon" title="Desafios">
-                      <Target className="w-5 h-5" />
-                    </Button>
-                  </Link>
-                  <Link to="/leaderboard">
-                    <Button variant="ghost" size="icon" title="Ranking">
-                      <Trophy className="w-5 h-5" />
-                    </Button>
-                  </Link>
-                  <Link to="/community">
-                    <Button variant="ghost" size="icon" title="Comunidade">
-                      <Heart className="w-5 h-5" />
-                    </Button>
-                  </Link>
-                  <Link to="/profile">
-                    <Button variant="ghost" size="icon" title="Meu Perfil">
-                      <User className="w-5 h-5" />
-                    </Button>
-                  </Link>
-                  <Button variant="ghost" size="icon" onClick={signOut} title="Sair">
-                    <LogOut className="w-5 h-5" />
-                  </Button>
-                </>
-              )}
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8 max-w-6xl space-y-12">
+          <div className="mb-8">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary group-focus-within:text-primary" />
+              <Input
+                type="search"
+                placeholder="Buscar seus livros favoritos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 h-14 text-base rounded-2xl border-2 border-primary/30 focus:border-primary shadow-elegant focus:shadow-glow transition-all duration-300"
+              />
             </div>
           </div>
-        </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl space-y-12">
-        <div className="mb-8">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary group-focus-within:text-primary" />
-            <Input
-              type="search"
-              placeholder="Buscar seus livros favoritos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-14 text-base rounded-2xl border-2 border-primary/30 focus:border-primary shadow-elegant focus:shadow-glow transition-all duration-300"
-            />
-          </div>
-        </div>
+          {continueReading.length > 0 && (
+            <section className="animate-fade-in">
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                <Sparkles className="w-6 h-6 text-primary" />
+                Continue sua Leitura
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {continueReading.map((ebook) => (
+                  <EbookCard key={ebook.id} ebook={ebook} progress={progress[ebook.id]} isPurchased={true} trackClick={trackClick} />
+                ))}
+              </div>
+            </section>
+          )}
 
-        {continueReading.length > 0 && (
-          <section className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <Sparkles className="w-6 h-6 text-primary" />
-              Continue sua Leitura
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {continueReading.map((ebook) => (
-                <EbookCard key={ebook.id} ebook={ebook} progress={progress[ebook.id]} isPurchased={true} trackClick={trackClick} />
-              ))}
+          {purchasedEbooks.length > 0 && (
+            <section className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                <Heart className="w-6 h-6 text-primary" />
+                Minha Coleção ({purchasedEbooks.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {purchasedEbooks.map((ebook) => (
+                  <EbookCard key={ebook.id} ebook={ebook} progress={progress[ebook.id]} isPurchased={true} trackClick={trackClick} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {lockedEbooks.length > 0 && (
+            <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span className="w-1 h-8 bg-gradient-primary rounded-full"></span>
+                Disponíveis para Compra ({lockedEbooks.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {lockedEbooks.map((ebook) => (
+                  <EbookCard key={ebook.id} ebook={ebook} progress={null} isPurchased={false} trackClick={trackClick} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {filteredEbooks.length === 0 && (
+            <div className="text-center py-16">
+              <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <h3 className="text-xl font-semibold mb-2">Nenhum ebook encontrado</h3>
+              <p className="text-muted-foreground">
+                {searchTerm ? 'Tente buscar por outro termo' : 'Nenhum ebook disponível no momento'}
+              </p>
             </div>
-          </section>
-        )}
-
-        {purchasedEbooks.length > 0 && (
-          <section className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <Heart className="w-6 h-6 text-primary" />
-              Minha Coleção ({purchasedEbooks.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {purchasedEbooks.map((ebook) => (
-                <EbookCard key={ebook.id} ebook={ebook} progress={progress[ebook.id]} isPurchased={true} trackClick={trackClick} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {lockedEbooks.length > 0 && (
-          <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <span className="w-1 h-8 bg-gradient-primary rounded-full"></span>
-              Disponíveis para Compra ({lockedEbooks.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {lockedEbooks.map((ebook) => (
-                <EbookCard key={ebook.id} ebook={ebook} progress={null} isPurchased={false} trackClick={trackClick} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {filteredEbooks.length === 0 && (
-          <div className="text-center py-16">
-            <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <h3 className="text-xl font-semibold mb-2">Nenhum ebook encontrado</h3>
-            <p className="text-muted-foreground">
-              {searchTerm ? 'Tente buscar por outro termo' : 'Nenhum ebook disponível no momento'}
-            </p>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
       </div>
     </>
   );
 };
 
-const EbookCard = ({ 
-  ebook, 
-  progress, 
+const EbookCard = ({
+  ebook,
+  progress,
   isPurchased,
-  trackClick 
-}: { 
-  ebook: Ebook; 
-  progress?: UserProgress | null; 
+  trackClick
+}: {
+  ebook: Ebook;
+  progress?: UserProgress | null;
   isPurchased: boolean;
   trackClick: (ebookId: string) => Promise<void>;
 }) => {
@@ -359,21 +367,21 @@ const EbookCard = ({
     e.preventDefault();
     e.stopPropagation();
     if (!ebook.purchase_url) return;
-    
+
     setIsPurchaseLoading(true);
     try {
       await trackClick(ebook.id);
       trackInitiateCheckout(ebook.current_price || undefined);
-      
+
       const newWindow = window.open(ebook.purchase_url, '_blank', 'noopener,noreferrer');
-      
+
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
         toast({
           title: "⚠️ Pop-up bloqueado",
           description: "Clique abaixo para abrir o checkout",
           action: (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={() => window.location.href = ebook.purchase_url!}
             >
               Abrir Checkout
@@ -397,7 +405,7 @@ const EbookCard = ({
       setIsPurchaseLoading(false);
     }
   };
-  
+
   const handleViewSample = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -409,8 +417,8 @@ const EbookCard = ({
       <Card className="group hover:shadow-glow transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden border-2 border-primary/10 hover:border-primary/30">
         <div className="relative aspect-[2/3] overflow-hidden bg-gradient-card">
           {!isPurchased && ebook.discount_percentage && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute top-3 left-3 z-10 animate-pulse text-sm px-3 py-1"
             >
               -{ebook.discount_percentage}% OFF 🔥
@@ -445,7 +453,7 @@ const EbookCard = ({
           {ebook.author && (
             <p className="text-sm text-muted-foreground">{ebook.author}</p>
           )}
-          
+
           {!isPurchased && ebook.original_price && ebook.current_price && ebook.discount_percentage && (
             <div className="space-y-2">
               <PriceTag

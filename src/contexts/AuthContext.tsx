@@ -27,16 +27,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔐 Auth event:', event);
-        
+
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
+
         // Log token refresh for monitoring
         if (event === 'TOKEN_REFRESHED') {
           console.log('🔄 Auth token refreshed successfully');
         }
-        
+
         // Handle token refresh errors - clear corrupted data
         if (event === 'TOKEN_REFRESHED' && !session) {
           console.error('⚠️ Token refresh failed - clearing auth data');
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             variant: "destructive",
           });
         }
-        
+
         // Handle sign out
         if (event === 'SIGNED_OUT') {
           console.log('👋 User signed out');
@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -149,6 +149,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         title: "Conta criada!",
         description: "Bem-vindo à plataforma de ebooks.",
       });
+
+      // Redireciona para a biblioteca após cadastro bem-sucedido
+      navigate('/library');
     }
 
     return { error };
@@ -167,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetPassword = async (email: string) => {
     const redirectUrl = `${window.location.origin}/reset-password`;
-    
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });

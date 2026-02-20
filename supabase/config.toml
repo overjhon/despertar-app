@@ -1,1 +1,25 @@
-project_id = "lnpvudfwpehnsiwicdvh"
+project_id = "thwnoqiiadnqepwenoue"
+
+[functions.handle-purchase]
+verify_jwt = false  # Webhook externo (Kiwify)
+
+[functions.claim-purchases]
+verify_jwt = true
+
+[functions.moderate-content]
+verify_jwt = true
+
+[functions.process-referral]
+verify_jwt = true
+
+[functions.process-referral-reward]
+verify_jwt = true
+
+[functions.seed-database]
+verify_jwt = false  # ⚠️ Apenas para desenvolvimento/testes
+
+[functions.send-push]
+verify_jwt = true
+
+[functions.send-test-webhook]
+verify_jwt = false  # ⚠️ Apenas para testes

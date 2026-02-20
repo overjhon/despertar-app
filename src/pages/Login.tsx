@@ -12,6 +12,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPrompt } from '@/components/pwa/NotificationPrompt';
 import { serverRateLimiter } from '@/lib/serverRateLimiter';
 import { toast } from 'sonner';
+import { SocialLoginButton } from '@/components/auth/SocialLoginButton';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -70,14 +71,14 @@ const Login = () => {
     }
 
     const { error } = await signIn(emailValidation.data, passwordValidation.data);
-    
+
     if (error) {
       setError('Email ou senha incorretos. Tente novamente.');
     } else {
       // Reset server-side rate limit on successful login
       await serverRateLimiter.reset('login', emailValidation.data);
     }
-    
+
     setLoading(false);
   };
 
@@ -93,8 +94,22 @@ const Login = () => {
             Que bom ter você aqui novamente
           </CardDescription>
         </CardHeader>
+        <CardContent className="space-y-4 pt-6">
+          {/* Google Login */}
+          <SocialLoginButton provider="google" text="Entrar com Google" />
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Ou continue com email</span>
+            </div>
+          </div>
+        </CardContent>
+
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-0">
             {error && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
                 {error}

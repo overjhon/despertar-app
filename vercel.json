@@ -5,16 +5,9 @@
   "installCommand": "npm install",
   "framework": "vite",
   "outputDirectory": "dist",
-  "regions": ["gru1"],
-  "env": {
-    "VITE_SUPABASE_URL": "@mundo-delas-supabase-url",
-    "VITE_SUPABASE_PUBLISHABLE_KEY": "@mundo-delas-supabase-key"
-  },
-  "build": {
-    "env": {
-      "NODE_VERSION": "20"
-    }
-  },
+  "regions": [
+    "gru1"
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -67,4 +60,3 @@
     }
   ]
 }
-

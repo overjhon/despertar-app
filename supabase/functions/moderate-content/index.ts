@@ -38,8 +38,8 @@ serve(async (req) => {
     }
 
     // Create Supabase client with user's auth token for verification
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseUrl = Deno.env.get('URL')!;
+    const supabaseAnonKey = Deno.env.get('ANON_KEY')!;
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     });
@@ -72,7 +72,7 @@ serve(async (req) => {
     if (!validation.success) {
       console.error('[MODERATE] Validation failed:', validation.error.flatten());
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Dados de moderação inválidos',
           code: 'INVALID_MODERATION_DATA'
         }),
@@ -122,7 +122,7 @@ Seja rigoroso mas justo. Conteúdo sobre velas artesanais é o tema principal.`
       // Log error server-side only (without exposing to client)
       console.error('[MODERATE] AI API error:', { status: response.status, error: errorText });
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Não foi possível analisar o conteúdo. Tente novamente.',
           code: 'AI_ANALYSIS_FAILED'
         }),
@@ -134,7 +134,7 @@ Seja rigoroso mas justo. Conteúdo sobre velas artesanais é o tema principal.`
     const aiResult = JSON.parse(aiData.choices[0].message.content);
 
     // Salvar resultado no Supabase usando service role para bypass RLS
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const moderationRecord = {
@@ -155,7 +155,7 @@ Seja rigoroso mas justo. Conteúdo sobre velas artesanais é o tema principal.`
     if (error) {
       console.error('[MODERATE] Database error:', error);
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Erro ao salvar resultado da moderação',
           code: 'DB_SAVE_ERROR'
         }),
@@ -175,10 +175,10 @@ Seja rigoroso mas justo. Conteúdo sobre velas artesanais é o tema principal.`
   } catch (error) {
     // Log detailed error server-side only
     console.error('[MODERATE] Internal error:', error);
-    
+
     // Return generic error to client
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Erro ao processar moderação. Tente novamente.',
         code: 'MODERATION_ERROR'
       }),

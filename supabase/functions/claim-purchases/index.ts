@@ -33,8 +33,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('URL')!;
+    const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // License validation (domain + license key)
@@ -95,8 +95,8 @@ Deno.serve(async (req) => {
     if (!pendingPurchases || pendingPurchases.length === 0) {
       console.log('[CLAIM] No pending purchases found');
       return new Response(
-        JSON.stringify({ 
-          success: true, 
+        JSON.stringify({
+          success: true,
           claimed_count: 0,
           message: 'Nenhuma compra pendente encontrada'
         }),
@@ -328,8 +328,8 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('[CLAIM] Unexpected error:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
+      JSON.stringify({
+        success: false,
         error: 'Erro ao resgatar compras. Tente novamente.',
         code: 'CLAIM_ERROR'
       }),

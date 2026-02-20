@@ -16,8 +16,8 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('URL')!;
+    const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')!;
     const supabaseLicenseClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const origin = req.headers.get('origin') || req.headers.get('referer') || '';
@@ -30,7 +30,7 @@ serve(async (req) => {
       );
     }
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         auth: {
@@ -112,7 +112,7 @@ serve(async (req) => {
     if (action === 'claim_reward') {
       const { ebookId } = await req.json();
       const authHeader = req.headers.get('Authorization');
-      
+
       if (!authHeader) {
         return new Response(JSON.stringify({ error: 'No authorization header' }), {
           status: 401,
@@ -178,7 +178,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in process-referral-reward:', error);
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: 'Erro ao processar recompensa. Tente novamente.',
       code: 'REWARD_ERROR'
     }), {

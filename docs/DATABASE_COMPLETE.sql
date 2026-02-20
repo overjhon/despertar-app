@@ -670,8 +670,8 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- ⚠️ CUSTOMIZE: Substitua 'admin@example.com' pelo email do primeiro admin
-  IF NEW.email = 'admin@example.com' THEN
+  -- Email do primeiro admin configurado: overjonasfm@gmail.com
+  IF NEW.email = 'overjonasfm@gmail.com' THEN
     INSERT INTO public.user_roles (user_id, role)
     VALUES (NEW.id, 'admin')
     ON CONFLICT (user_id, role) DO NOTHING;

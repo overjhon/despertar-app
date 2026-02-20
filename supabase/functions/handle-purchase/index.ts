@@ -63,8 +63,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('URL')!;
+    const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // ============= VALIDAÇÃO DE LICENÇA =============
@@ -104,15 +104,15 @@ Deno.serve(async (req) => {
     } catch (error) {
       console.error('[PURCHASE] Invalid JSON:', error);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'JSON inválido',
           code: 'INVALID_JSON'
         }),
         { status: 400, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
       );
     }
-    
+
     // Rate limiting para prevenir abuse
     const rateLimitKey = `webhook:${req.headers.get('x-forwarded-for') || 'unknown'}`;
     const { data: rateLimit } = await supabase.rpc('check_rate_limit', {
@@ -126,10 +126,10 @@ Deno.serve(async (req) => {
     if (rateLimit && !rateLimit.allowed) {
       console.error('⛔ Rate limit exceeded for webhook');
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Muitas tentativas. Tente novamente mais tarde.',
           code: 'RATE_LIMIT_EXCEEDED'
-        }), 
+        }),
         { status: 429, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
       );
     }
@@ -138,8 +138,8 @@ Deno.serve(async (req) => {
     if (!validation.success) {
       console.error('[PURCHASE] Validation failed:', validation.error.flatten());
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Dados inválidos',
           code: 'VALIDATION_ERROR'
         }),
@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
     }
 
     const payload: PurchasePayload = validation.data;
-    
+
     // Log webhook attempt for audit trail
     console.log('[PURCHASE] Valid webhook received:', {
       email: payload.email,
@@ -169,15 +169,15 @@ Deno.serve(async (req) => {
     // 1. Map product_id to real ebook_id using secure function
     const productId = payload.ebook_id; // This is the payment system's product_id
     console.log('[PURCHASE] Looking up product mapping for:', productId);
-    
+
     const { data: realEbookId, error: mappingError } = await supabase
       .rpc('get_ebook_id_for_product', { p_product_id: productId });
 
     if (mappingError) {
       console.error('[PURCHASE] Error fetching product mapping:', mappingError);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Erro ao processar compra',
           code: 'PRODUCT_LOOKUP_ERROR'
         }),
@@ -188,8 +188,8 @@ Deno.serve(async (req) => {
     if (!realEbookId) {
       console.error('[PURCHASE] Product not mapped:', productId);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Produto não encontrado',
           code: 'PRODUCT_NOT_FOUND'
         }),
@@ -202,20 +202,20 @@ Deno.serve(async (req) => {
     // 2. Normalize email
     const normalizedEmail = email.toLowerCase().trim();
     console.log('[PURCHASE] Searching for user:', normalizedEmail);
-    
+
     const { data: userId, error: rpcError } = await supabase.rpc('get_user_id_by_email', {
       user_email: normalizedEmail
     });
-    
+
     if (rpcError) {
       console.error('[PURCHASE] Error calling RPC:', rpcError);
       throw new Error('Erro ao buscar usuário');
     }
-    
+
     // If user not found, save as pending purchase
     if (!userId) {
       console.log('[PURCHASE] User not found, saving as pending:', normalizedEmail);
-      
+
       const { error: pendingError } = await supabase
         .from('pending_purchases')
         .upsert({
@@ -231,16 +231,16 @@ Deno.serve(async (req) => {
         }, {
           onConflict: 'transaction_id'
         });
-      
+
       if (pendingError) {
         console.error('[PURCHASE] Error saving pending purchase:', pendingError);
         throw new Error('Erro ao salvar compra pendente');
       }
-      
+
       console.log('[PURCHASE] Pending purchase saved successfully');
       return new Response(
-        JSON.stringify({ 
-          success: true, 
+        JSON.stringify({
+          success: true,
           status: 'pending_user',
           message: 'Compra salva. Complete o cadastro para acessar seu ebook.'
         }),
@@ -329,8 +329,8 @@ Deno.serve(async (req) => {
 
     if (updateGamError) throw updateGamError;
 
-    console.log('[PURCHASE] XP awarded:', { 
-      xp_amount: purchaseXP, 
+    console.log('[PURCHASE] XP awarded:', {
+      xp_amount: purchaseXP,
       new_total: newTotalXP,
       old_level: oldLevel,
       new_level: newLevel,
@@ -389,7 +389,7 @@ Deno.serve(async (req) => {
 
           await supabase
             .from('user_gamification')
-            .update({ 
+            .update({
               total_xp: newTotalWithBadge,
               current_level: levelWithBadge,
             })
@@ -469,7 +469,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     // Log detailed error server-side only
     console.error('[PURCHASE] Internal error:', error);
-    
+
     // Return generic error to client
     return new Response(
       JSON.stringify({

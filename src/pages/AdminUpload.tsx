@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -21,7 +21,7 @@ const FILE_SIZE_LIMITS = {
 const sanitizeFileName = (fileName: string): string => {
   const extension = fileName.slice(fileName.lastIndexOf('.'));
   const nameWithoutExt = fileName.slice(0, fileName.lastIndexOf('.'));
-  
+
   const sanitized = nameWithoutExt
     .normalize('NFD') // Decompõe caracteres acentuados
     .replace(/[\u0300-\u036f]/g, '') // Remove acentos
@@ -29,7 +29,7 @@ const sanitizeFileName = (fileName: string): string => {
     .replace(/--+/g, '-') // Remove hífens duplicados
     .replace(/^-+|-+$/g, '') // Remove hífens do início e fim
     .toLowerCase();
-  
+
   const timestamp = Date.now();
   return `${sanitized}-${timestamp}${extension}`;
 };
@@ -51,6 +51,7 @@ const AdminUpload = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const isSubmitting = useRef(false); // Guard síncrono contra double-submit
 
   // Form state
   const [title, setTitle] = useState('');
@@ -115,10 +116,10 @@ const AdminUpload = () => {
 
   const validateFile = (file: File | null, type: 'pdf' | 'cover' | 'sample'): boolean => {
     if (!file) return true; // Arquivos opcionais são válidos se não forem fornecidos
-    
+
     const limit = FILE_SIZE_LIMITS[type];
     const isValid = checkFileSize(file, limit);
-    
+
     if (!isValid) {
       const limitMB = formatFileSize(limit);
       const fileSizeMB = formatFileSize(file.size);
@@ -128,14 +129,14 @@ const AdminUpload = () => {
         variant: "destructive"
       });
     }
-    
+
     return isValid;
   };
 
   const uploadFile = async (file: File, bucket: string, originalFileName: string) => {
     const sanitizedFileName = sanitizeFileName(originalFileName);
     const path = bucket === 'covers' ? sanitizedFileName : `${crypto.randomUUID()}/${sanitizedFileName}`;
-    
+
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(path, file, {
@@ -152,12 +153,16 @@ const AdminUpload = () => {
       }
       throw error;
     }
-    
+
     return { data, sanitizedFileName: path };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Guard: previne submissão dupla mesmo com cliques rápidos
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
 
     if (!pdfFile || !coverFile) {
       toast({
@@ -290,6 +295,7 @@ const AdminUpload = () => {
       });
     } finally {
       setUploading(false);
+      isSubmitting.current = false;
     }
   };
 
