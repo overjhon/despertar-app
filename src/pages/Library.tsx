@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { BookOpen, Search, LogOut, User, Lock, Upload, Trophy, Target, Heart, Sparkles, Package, ShoppingCart, RefreshCw, Eye } from 'lucide-react';
+import { BookOpen, Search, LogOut, User, Lock, Upload, Trophy, Target, Heart, Sparkles, ShoppingCart, RefreshCw, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -149,7 +149,7 @@ const Library = () => {
 
       const ebooksWithPurchaseStatus = (ebooksData || []).map(ebook => ({
         ...ebook,
-        isPurchased: purchasedIds.has(ebook.id)
+        isPurchased: purchasedIds.has(ebook.id) || ebook.current_price === 0 || ebook.current_price === null
       }));
 
       setEbooks(ebooksWithPurchaseStatus);
@@ -219,14 +219,7 @@ const Library = () => {
                 {gamificationData && levelName && !isMobile && (
                   <LevelBadge level={gamificationData.current_level} levelName={levelName} />
                 )}
-                {!isMobile && (
-                  <Link to="/packages">
-                    <Button variant="premium" size="sm" className="gap-2">
-                      <Package className="w-4 h-4" />
-                      Pacotes
-                    </Button>
-                  </Link>
-                )}
+
                 {isAdmin && (
                   <>
                     <Link to="/admin/manage">

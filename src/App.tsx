@@ -36,7 +36,7 @@ const Community = lazy(() => import("./pages/Community"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const Challenges = lazy(() => import("./pages/Challenges"));
-const Packages = lazy(() => import("./pages/Packages"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ReviewsPage = lazy(() => import("./pages/ReviewsPage").then(module => ({ default: module.ReviewsPage })));
 const GalleryPage = lazy(() => import("./pages/GalleryPage").then(module => ({ default: module.GalleryPage })));
@@ -63,9 +63,9 @@ const AppContent = () => {
   usePWAUpdate(); // Initialize PWA update detection
   useSessionTimeout(30); // 30 minutes inactivity timeout
   useErrorMonitoring(); // Error monitoring and logging
-  
+
   // Hide bottom nav on home page, reader pages, or when not logged in
-  const hideBottomNav = 
+  const hideBottomNav =
     /^\/(ebook|reader|sample)\//.test(location.pathname) ||
     location.pathname === '/' ||
     !user;
@@ -84,7 +84,7 @@ const AppContent = () => {
           <Route path="/community" element={<Community />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/challenges" element={<Challenges />} />
-          <Route path="/packages" element={<Packages />} />
+
           <Route path="/user/:userId" element={<PublicProfile />} />
           <Route path="/ebook/:id" element={<EbookDetail />} />
           <Route path="/reader/:id" element={<Reader />} />
