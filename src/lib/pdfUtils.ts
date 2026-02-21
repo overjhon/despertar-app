@@ -6,13 +6,13 @@ import { isValidUUID } from './validation';
  */
 const isValidHttpUrl = (str: string): boolean => {
   if (!str || typeof str !== 'string') return false;
-  
+
   // Rejeita se for apenas um UUID (erro comum)
   if (isValidUUID(str)) {
     console.error('❌ Tentativa de usar UUID como URL de PDF:', str);
     return false;
   }
-  
+
   try {
     const url = new URL(str);
     return url.protocol === 'http:' || url.protocol === 'https:';
@@ -31,7 +31,7 @@ export const sanitizePdfPath = (pdfPath: string | undefined | null): string | nu
   }
 
   const trimmed = pdfPath.trim();
-  
+
   // Se for apenas UUID, isso é um erro - não deve acontecer
   if (isValidUUID(trimmed)) {
     console.error('❌ ERRO: pdf_url no banco é apenas UUID, deveria ser URL completa:', trimmed);
@@ -43,11 +43,12 @@ export const sanitizePdfPath = (pdfPath: string | undefined | null): string | nu
 };
 
 /**
- * Gera uma URL pública para acessar PDFs no bucket público do Supabase
- * @param pdfPath - Caminho completo do PDF no bucket (ex: "ebooks/abc123.pdf")
+ * Gera uma URL pública para acessar PDFs em buckets PÚBLICOS (samples, covers)
+ * @param pdfPath - Caminho do PDF no bucket
+ * @param bucket - Nome do bucket (padrão: 'samples')
  * @returns URL pública ou null se inválido
  */
-export const getPublicPdfUrl = (pdfPath: string | undefined | null): string | null => {
+export const getPublicPdfUrl = (pdfPath: string | undefined | null, bucket: string = 'samples'): string | null => {
   const sanitized = sanitizePdfPath(pdfPath);
   if (!sanitized) return null;
 
@@ -57,16 +58,18 @@ export const getPublicPdfUrl = (pdfPath: string | undefined | null): string | nu
     return sanitized;
   }
 
-  // Limpar path e gerar URL pública
+  // Limpar path
   const cleanPath = sanitized
     .replace(/^\/ebooks\//, '')
-    .replace(/^ebooks\//, '');
+    .replace(/^ebooks\//, '')
+    .replace(/^\/samples\//, '')
+    .replace(/^samples\//, '');
 
-  console.log('🔓 Gerando URL pública para:', cleanPath);
+  console.log(`🔓 Gerando URL pública (${bucket}):`, cleanPath);
 
   try {
     const { data } = supabase.storage
-      .from('ebooks')
+      .from(bucket)
       .getPublicUrl(cleanPath);
 
     if (!data?.publicUrl) {
@@ -83,6 +86,61 @@ export const getPublicPdfUrl = (pdfPath: string | undefined | null): string | nu
 };
 
 /**
+ * Gera uma URL assinada (temporária) para acessar PDFs no bucket PRIVADO 'ebooks'
+ * Requer que o usuário esteja autenticado (session ativa no Supabase)
+ * @param pdfPath - Caminho do PDF no bucket ebooks
+ * @param expiresInSeconds - Tempo de expiração em segundos (padrão: 3600 = 1 hora)
+ * @returns URL assinada ou null se falhar
+ */
+export const getSignedPdfUrl = async (
+  pdfPath: string | undefined | null,
+  expiresInSeconds: number = 3600
+): Promise<string | null> => {
+  const sanitized = sanitizePdfPath(pdfPath);
+  if (!sanitized) return null;
+
+  // Se já for uma URL completa com token, retornar diretamente
+  if (isValidHttpUrl(sanitized) && sanitized.includes('token=')) {
+    console.log('✅ PDF já é URL assinada:', sanitized);
+    return sanitized;
+  }
+
+  // Limpar path (remover prefixos de bucket)
+  const cleanPath = sanitized
+    .replace(/^\/ebooks\//, '')
+    .replace(/^ebooks\//, '');
+
+  // Se for URL pública completa, extrair só o path
+  let finalPath = cleanPath;
+  if (isValidHttpUrl(cleanPath)) {
+    try {
+      const url = new URL(cleanPath);
+      const match = url.pathname.match(/\/storage\/v1\/object\/public\/ebooks\/(.+)/);
+      if (match) finalPath = decodeURIComponent(match[1]);
+    } catch { /* usa cleanPath como está */ }
+  }
+
+  console.log('🔐 Gerando URL assinada para:', finalPath);
+
+  try {
+    const { data, error } = await supabase.storage
+      .from('ebooks')
+      .createSignedUrl(finalPath, expiresInSeconds);
+
+    if (error || !data?.signedUrl) {
+      console.error('❌ Falha ao gerar URL assinada:', error?.message);
+      return null;
+    }
+
+    console.log('✅ URL assinada gerada (expira em', expiresInSeconds, 's)');
+    return data.signedUrl;
+  } catch (error) {
+    console.error('❌ Erro ao gerar URL assinada:', error);
+    return null;
+  }
+};
+
+/**
  * Valida se uma URL de PDF está acessível com fallback robusto
  * @param url - URL do PDF para validar
  * @returns true se a URL está acessível, false caso contrário
@@ -90,17 +148,17 @@ export const getPublicPdfUrl = (pdfPath: string | undefined | null): string | nu
 export const validatePdfUrl = async (url: string | undefined | null): Promise<boolean> => {
   const sanitized = sanitizePdfPath(url);
   if (!sanitized) return false;
-  
+
   // Verificar se é uma URL HTTP válida
   if (!isValidHttpUrl(sanitized)) {
     console.error('❌ String fornecida não é uma URL HTTP válida:', sanitized);
     return false;
   }
-  
+
   const validUrl = sanitized;
   try {
     console.log('🔍 Validando acesso ao PDF:', validUrl);
-    
+
     // Primeira tentativa: HEAD request
     const headResponse = await Promise.race([
       fetch(validUrl, {
@@ -108,16 +166,16 @@ export const validatePdfUrl = async (url: string | undefined | null): Promise<bo
         mode: 'cors',
         cache: 'no-cache'
       }),
-      new Promise<Response>((_, reject) => 
+      new Promise<Response>((_, reject) =>
         setTimeout(() => reject(new Error('timeout')), 3000)
       )
     ]);
-    
+
     if (headResponse.ok) {
       console.log('✅ PDF URL válida (HEAD)', validUrl);
       return true;
     }
-    
+
     // Log específico para erros HTTP
     if (headResponse.status === 404) {
       console.error('❌ PDF não encontrado (404):', validUrl);
@@ -132,7 +190,7 @@ export const validatePdfUrl = async (url: string | undefined | null): Promise<bo
     }
   } catch (headError) {
     console.warn('⚠️ HEAD falhou, tentando GET com range...', headError);
-    
+
     // Segunda tentativa: GET com range mínimo
     try {
       const getResponse = await Promise.race([
@@ -142,11 +200,11 @@ export const validatePdfUrl = async (url: string | undefined | null): Promise<bo
           mode: 'cors',
           cache: 'no-cache'
         }),
-        new Promise<Response>((_, reject) => 
+        new Promise<Response>((_, reject) =>
           setTimeout(() => reject(new Error('timeout')), 3000)
         )
       ]);
-      
+
       // Log específico para erros HTTP no GET
       if (getResponse.status === 404) {
         console.error('❌ PDF não encontrado (404) em GET:', validUrl);
@@ -157,7 +215,7 @@ export const validatePdfUrl = async (url: string | undefined | null): Promise<bo
         console.error('💡 Verifique as políticas de acesso do bucket no Supabase');
         return false;
       }
-      
+
       const isValid = getResponse.ok || getResponse.status === 206;
       console.log(isValid ? '✅ PDF URL válida (GET)' : `❌ PDF URL inválida (status ${getResponse.status})`, validUrl);
       return isValid;
@@ -167,7 +225,7 @@ export const validatePdfUrl = async (url: string | undefined | null): Promise<bo
       return false;
     }
   }
-  
+
   return false;
 };
 
@@ -179,13 +237,13 @@ export const validatePdfUrl = async (url: string | undefined | null): Promise<bo
 export const createObjectUrlFromPdf = async (url: string): Promise<string | null> => {
   try {
     console.log('🔄 Criando Blob URL para:', url);
-    
+
     const response = await Promise.race([
-      fetch(url, { 
+      fetch(url, {
         mode: 'cors',
-        cache: 'default' 
+        cache: 'default'
       }),
-      new Promise<Response>((_, reject) => 
+      new Promise<Response>((_, reject) =>
         setTimeout(() => reject(new Error('timeout')), 10000)
       )
     ]);
@@ -196,7 +254,7 @@ export const createObjectUrlFromPdf = async (url: string): Promise<string | null
 
     const blob = await response.blob();
     const objectUrl = URL.createObjectURL(blob);
-    
+
     console.log('✅ Blob URL criado:', objectUrl);
     return objectUrl;
   } catch (error) {

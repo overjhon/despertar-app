@@ -10,14 +10,14 @@ import { useStreak } from '@/hooks/useStreak';
 import { useBadges } from '@/hooks/useBadges';
 import { useChallenges } from '@/hooks/useChallenges';
 import { PDFPageViewer } from '@/components/reader/PDFPageViewer';
-import { getPublicPdfUrl, validatePdfUrl } from '@/lib/pdfUtils';
+import { getSignedPdfUrl, validatePdfUrl } from '@/lib/pdfUtils';
 import { validateUUIDParam } from '@/lib/validation';
 
 const Reader = () => {
   const { id: rawId } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   // Validar UUID antes de usar
   const id = validateUUIDParam(rawId, 'ebook_id');
   const [ebook, setEbook] = useState<any>(null);
@@ -29,7 +29,7 @@ const Reader = () => {
   const [loadingMessage, setLoadingMessage] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [wasCompleted, setWasCompleted] = useState(false);
-  
+
   const { addXP } = useXP();
   const { updateStreak } = useStreak();
   const { awardBadge, allBadges } = useBadges();
@@ -40,14 +40,14 @@ const Reader = () => {
       navigate('/login');
       return;
     }
-    
+
     if (!id) {
       console.error('❌ ID de ebook inválido na URL');
       setError('Link inválido. Por favor, verifique o endereço.');
       setLoading(false);
       return;
     }
-    
+
     fetchEbookAndProgress();
   }, [user, id, navigate]);
 
@@ -83,7 +83,7 @@ const Reader = () => {
 
   const loadingMessages = [
     "✨ Preparando sua leitura...",
-    "📚 Carregando páginas...", 
+    "📚 Carregando páginas...",
     "🎨 Ajustando qualidade...",
     "⚡ Quase lá...",
   ];
@@ -114,7 +114,7 @@ const Reader = () => {
 
       setEbook(ebookData);
 
-      // Tentar gerar URL assinada para o PDF com validação e fallback local
+      // Usar URL assinada (bucket privado) com validação e fallback local
       if (ebookData?.pdf_url) {
         const pickLocalFallback = (title: string) => {
           const t = (title || '').toLowerCase();
@@ -125,16 +125,16 @@ const Reader = () => {
           return null;
         };
 
-        // Usar URL pública direta (bucket é público)
-        const publicUrl = getPublicPdfUrl(ebookData.pdf_url);
-        
-        console.log('🔓 Usando URL pública:', publicUrl);
-        
+        // Gerar URL assinada (expira em 1h) - requer usuário logado
+        const signedUrl = await getSignedPdfUrl(ebookData.pdf_url);
+
+        console.log('🔐 Usando URL assinada para PDF');
+
         // Validar URL antes de usar
-        const isValid = await validatePdfUrl(publicUrl);
-        
-        if (isValid) {
-          setPdfUrl(publicUrl);
+        const isValid = signedUrl ? await validatePdfUrl(signedUrl) : false;
+
+        if (isValid && signedUrl) {
+          setPdfUrl(signedUrl);
           setError(null);
         } else {
           // Fallback para URL local se existir
@@ -370,7 +370,7 @@ const Reader = () => {
     if (startReadTime) {
       const completionTime = new Date();
       const hoursToComplete = (completionTime.getTime() - startReadTime.getTime()) / (1000 * 60 * 60);
-      
+
       if (hoursToComplete < 48) {
         const speedBadge = allBadges.find(b => b.name === 'Velocista');
         if (speedBadge) {

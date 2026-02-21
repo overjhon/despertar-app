@@ -16,7 +16,7 @@ const SampleReader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
-  
+
   // Validar UUID antes de usar
   const id = validateUUIDParam(rawId, 'ebook_id');
   const [ebook, setEbook] = useState<any>(null);
@@ -50,7 +50,7 @@ const SampleReader = () => {
         return;
       }
     }
-    
+
     if (!id) {
       console.error('❌ ID de ebook inválido na URL');
       toast({
@@ -71,7 +71,7 @@ const SampleReader = () => {
       navigate('/library');
       return;
     }
-    
+
     fetchEbook();
   }, [user, id, navigate]);
 
@@ -106,29 +106,28 @@ const SampleReader = () => {
         navigate('/library');
         return;
       }
-      
+
       setEbook(data);
-      
+
       // Calcular 20% do total de páginas
       const maxPage = Math.ceil(data.total_pages * 0.2);
       setSampleMaxPage(maxPage);
 
-      // Gerar URL pública para o PDF
-      if (data?.sample_pdf_url || data?.pdf_url) {
-        const pdfPath = data.sample_pdf_url || data.pdf_url;
-        const publicUrl = getPublicPdfUrl(pdfPath);
-        
+      // Gerar URL pública para o PDF (bucket 'samples' é público)
+      if (data?.sample_pdf_url) {
+        const pdfPath = data.sample_pdf_url;
+        const publicUrl = getPublicPdfUrl(pdfPath, 'samples');
+
         console.log('🔓 Usando URL pública para sample:', publicUrl);
-        
+
         // Validar URL antes de usar
         const isValid = await validatePdfUrl(publicUrl);
-        
+
         if (isValid) {
           setPdfUrl(publicUrl);
           console.log('✅ URL do PDF sample obtida');
         } else {
-          console.warn('⚠️ URL de PDF inválida, tentando fallback');
-          // Tentar original primeiro
+          console.warn('⚠️ URL de PDF sample inválida, tentando URL original');
           const originalValid = await validatePdfUrl(pdfPath);
           if (originalValid) {
             setPdfUrl(pdfPath);
@@ -144,6 +143,8 @@ const SampleReader = () => {
             }
           }
         }
+      } else {
+        console.warn('⚠️ Ebook não possui sample_pdf_url configurado');
       }
     } catch (error) {
       console.error('Error fetching ebook:', error);
@@ -172,19 +173,19 @@ const SampleReader = () => {
       });
       return;
     }
-    
+
     try {
       trackInitiateCheckout(ebook.current_price || undefined);
-      
+
       const newWindow = window.open(ebook.purchase_url, '_blank', 'noopener,noreferrer');
-      
+
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
         toast({
           title: "⚠️ Pop-up bloqueado",
           description: "Clique abaixo para abrir o checkout",
           action: (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={() => window.location.href = ebook.purchase_url!}
             >
               Abrir Checkout
@@ -246,8 +247,8 @@ const SampleReader = () => {
                 {ebook.title} - Amostra Grátis
               </h1>
               <p className="text-xs text-muted-foreground">
-                {isLimitedSample 
-                  ? `Pág. ${currentPage} de ${sampleMaxPage} (20% grátis)` 
+                {isLimitedSample
+                  ? `Pág. ${currentPage} de ${sampleMaxPage} (20% grátis)`
                   : `Página ${currentPage}`}
               </p>
             </div>
@@ -264,7 +265,7 @@ const SampleReader = () => {
           onPageChange={setCurrentPage}
           maxPages={isLimitedSample ? sampleMaxPage : undefined}
         />
-        
+
         {/* Bloqueio visual se atingiu o limite */}
         {isLimitedSample && currentPage >= sampleMaxPage && (
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent flex items-end justify-center pb-32 pointer-events-none">
@@ -297,7 +298,7 @@ const SampleReader = () => {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Lock className="w-4 h-4" />
               <span className="hidden md:inline">
-                {isLimitedSample 
+                {isLimitedSample
                   ? `Amostra grátis - ${sampleMaxPage} de ${ebook.total_pages} páginas`
                   : 'Amostra grátis'}
               </span>
