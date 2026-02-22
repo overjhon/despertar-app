@@ -110,7 +110,7 @@ serve(async (req) => {
   "analysis": "breve explicação",
   "recommendation": "approve" ou "reject" ou "review"
 }
-Seja rigoroso mas justo. Conteúdo sobre velas artesanais é o tema principal.`
+Seja rigoroso mas justo. Conteúdo sobre despertar feminino e desenvolvimento pessoal é o tema principal.`
           },
           { role: 'user', content: content }
         ],

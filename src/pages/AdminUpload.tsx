@@ -382,7 +382,7 @@ const AdminUpload = () => {
                       id="author"
                       value={author}
                       onChange={(e) => setAuthor(e.target.value)}
-                      placeholder="Ex: Equipe Velas Artesanais"
+                      placeholder="Ex: Equipe Despertar"
                     />
                   </div>
 

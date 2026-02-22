@@ -14,10 +14,10 @@ import logoTransparente from '@/assets/logo-sem-fundo.png';
 import iosGif from '@/assets/ios-install-tutorial.gif';
 
 const Install = () => {
-  const { 
-    isInstalled, 
-    isInstallable, 
-    isIOS, 
+  const {
+    isInstalled,
+    isInstallable,
+    isIOS,
     isAndroid,
     isSafari,
     isChrome,
@@ -25,11 +25,11 @@ const Install = () => {
     promptInstall,
     checkIOSStandalone
   } = useInstallPrompt();
-  
+
   const { user } = useAuth();
   const { addXP } = useXP();
   const { awardBadge } = useBadges();
-  
+
   const [installing, setInstalling] = useState(false);
   const [waitingForPrompt, setWaitingForPrompt] = useState(false);
   const [gifLoaded, setGifLoaded] = useState(false);
@@ -40,7 +40,7 @@ const Install = () => {
   useEffect(() => {
     const checkRewardStatus = async () => {
       if (!user) return;
-      
+
       const { data: gamData, error } = await supabase
         .from('user_gamification')
         .select('install_reward_claimed')
@@ -56,14 +56,14 @@ const Install = () => {
         setRewardProcessed(true);
       }
     };
-    
+
     checkRewardStatus();
   }, [user]);
 
   // Dar recompensa quando instalar
   const giveInstallationReward = async () => {
     if (!user || rewardProcessed) return;
-    
+
     try {
       // Verificar novamente antes de processar (prevenir race condition)
       const { data: gamData } = await supabase
@@ -76,7 +76,7 @@ const Install = () => {
         setRewardProcessed(true);
         return;
       }
-      
+
       // Marcar como processado no banco de dados
       const { error: updateError } = await supabase
         .from('user_gamification')
@@ -88,18 +88,18 @@ const Install = () => {
         console.error('Erro ao marcar recompensa:', updateError);
         return;
       }
-      
+
       setRewardProcessed(true);
-      
+
       // Dar XP
       await addXP({
         amount: 50,
         reason: 'Instalou o app PWA',
       });
-      
+
       // Dar badge Early Adopter
       await awardBadge('early-adopter');
-      
+
       toast.success('🎉 Parabéns! Você ganhou 50 XP e o badge Early Adopter!');
     } catch (error) {
       console.error('Erro ao dar recompensa:', error);
@@ -111,16 +111,16 @@ const Install = () => {
   useEffect(() => {
     const checkIOSInstallation = async () => {
       if (!isIOS || rewardProcessed) return;
-      
+
       const isStandalone = checkIOSStandalone();
-      
+
       // Apenas mostra mensagem se estiver em standalone
       if (isStandalone) {
         console.log('App rodando em modo standalone (instalado)');
         // Usuário DEVE clicar no botão manualmente para receber recompensa
       }
     };
-    
+
     checkIOSInstallation();
   }, [isIOS, rewardProcessed]);
 
@@ -136,7 +136,7 @@ const Install = () => {
       // Prompt disponível - instalar imediatamente
       const success = await promptInstall();
       setInstalling(false);
-      
+
       if (!success) {
         // Se falhou, mostrar dica manual
         setWaitingForPrompt(false);
@@ -144,7 +144,7 @@ const Install = () => {
     } else if (canInstallPWA && !isInstallable) {
       // Browser suporta mas prompt ainda não veio - aguardar
       setWaitingForPrompt(true);
-      
+
       // Timeout de 3 segundos
       setTimeout(() => {
         setInstalling(false);
@@ -170,28 +170,28 @@ const Install = () => {
         <div className="container mx-auto max-w-2xl text-center">
           {/* Logo */}
           <div className="mb-6">
-            <img 
-              src={logoTransparente} 
-              alt="Logo Mundo Delas - Ebooks de Velas Artesanais" 
+            <img
+              src={logoTransparente}
+              alt="Despertar da Mulher"
               className="w-32 h-32 mx-auto object-contain drop-shadow-lg"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
                 const fallback = document.createElement('div');
                 fallback.className = 'w-32 h-32 mx-auto bg-white/20 rounded-full flex items-center justify-center text-white text-4xl font-bold';
-                fallback.textContent = 'MD';
+                fallback.textContent = 'DM';
                 e.currentTarget.parentNode?.appendChild(fallback);
               }}
             />
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl font-bold mb-4 font-heading">
-            Instale o App Mundo Delas
+            Instale o App Despertar da Mulher
           </h1>
-          
+
           <p className="text-lg text-white/90 mb-2 max-w-xl mx-auto">
             Acesse seus ebooks offline, receba notificações e tenha uma experiência otimizada
           </p>
-          
+
           <p className="text-base text-white/80 mb-8 max-w-xl mx-auto">
             Depois de instalar, você poderá criar sua conta e acessar todo o conteúdo
           </p>
@@ -227,7 +227,7 @@ const Install = () => {
                   <h2 className="text-2xl font-bold font-heading">
                     Como instalar no iPhone/iPad
                   </h2>
-                  
+
                   <div className="rounded-lg overflow-hidden border-2 border-primary/20 bg-muted/30">
                     {!gifLoaded && !gifError && (
                       <Skeleton className="w-full h-96" />
@@ -240,9 +240,9 @@ const Install = () => {
                         </div>
                       </div>
                     ) : (
-                      <img 
-                        src={iosGif} 
-                        alt="Tutorial de instalação iOS mostrando como adicionar à tela de início" 
+                      <img
+                        src={iosGif}
+                        alt="Tutorial de instalação iOS mostrando como adicionar à tela de início"
                         className="w-full"
                         loading="eager"
                         onLoad={() => setGifLoaded(true)}
@@ -274,7 +274,7 @@ const Install = () => {
                   </div>
 
                   {user && !rewardProcessed && (
-                    <Button 
+                    <Button
                       onClick={handleIOSInstallationConfirm}
                       size="lg"
                       className="w-full gap-2"
@@ -298,7 +298,7 @@ const Install = () => {
               </h2>
 
               {canInstallPWA && isInstallable && (
-                <Button 
+                <Button
                   onClick={handleInstall}
                   size="lg"
                   className="w-full gap-2"
@@ -311,7 +311,7 @@ const Install = () => {
 
               {canInstallPWA && !isInstallable && !waitingForPrompt && (
                 <div className="space-y-3">
-                  <Button 
+                  <Button
                     onClick={handleInstall}
                     size="lg"
                     className="w-full gap-2"
@@ -320,7 +320,7 @@ const Install = () => {
                     <Download className="w-5 h-5" />
                     Instalar App
                   </Button>
-                  
+
                   <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
                     <p className="font-medium text-foreground mb-2">Ou instale manualmente:</p>
                     <div className="flex items-start gap-2">
@@ -372,7 +372,7 @@ const Install = () => {
 
               {isInstallable ? (
                 <>
-                  <Button 
+                  <Button
                     onClick={handleInstall}
                     size="lg"
                     className="w-full gap-2"
@@ -381,7 +381,7 @@ const Install = () => {
                     <Download className="w-5 h-5" />
                     {installing ? 'Instalando...' : 'Instalar App'}
                   </Button>
-                  
+
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t" />
@@ -414,10 +414,10 @@ const Install = () => {
                       <span>O app será aberto em uma janela separada, sem a barra do navegador</span>
                     </li>
                   </ol>
-                  
+
                   <div className="bg-accent/30 border border-accent-foreground/20 rounded-lg p-3 mt-3">
                     <p className="text-xs text-muted-foreground">
-                      <strong>Dica:</strong> Você também pode clicar nos três pontos <span className="font-mono">⋮</span> do menu → <strong>"Instalar Mundo Delas"</strong>
+                      <strong>Dica:</strong> Você também pode clicar nos três pontos <span className="font-mono">⋮</span> do menu → <strong>"Instalar Despertar da Mulher"</strong>
                     </p>
                   </div>
                 </div>
@@ -432,7 +432,7 @@ const Install = () => {
                 <ul className="text-sm text-muted-foreground space-y-1 pl-6">
                   <li>• O app abre em janela separada (sem barra de navegador)</li>
                   <li>• Você pode fixar o app na barra de tarefas</li>
-                  <li>• O ícone do Mundo Delas aparece no menu iniciar/aplicativos</li>
+                  <li>• O ícone do Despertar da Mulher aparece no menu iniciar/aplicativos</li>
                 </ul>
               </div>
             </CardContent>
@@ -446,7 +446,7 @@ const Install = () => {
               <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto shadow-glow">
                 <CheckCircle2 className="w-10 h-10 text-white" />
               </div>
-              
+
               <div className="space-y-3">
                 <h2 className="text-3xl font-bold font-heading text-primary">
                   🎉 App Instalado com Sucesso!
@@ -469,7 +469,7 @@ const Install = () => {
                     <li className="flex items-start gap-3">
                       <span className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">2</span>
                       <div className="flex-1 pt-1">
-                        <strong className="text-base">Abra o app "Mundo Delas"</strong>
+                        <strong className="text-base">Abra o app "Despertar da Mulher"</strong>
                         <p className="text-muted-foreground mt-1">Procure o ícone na sua tela inicial ou menu de aplicativos</p>
                       </div>
                     </li>

@@ -48,7 +48,7 @@ export const ChallengeCard = ({ challenge, onClaim }: ChallengeCardProps) => {
       case 'monthly':
         return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
       case 'special':
-        return 'bg-pink-500/10 text-pink-500 border-pink-500/20';
+        return 'bg-red-600/10 text-red-600 border-red-600/20';
       default:
         return 'bg-primary/10 text-primary border-primary/20';
     }

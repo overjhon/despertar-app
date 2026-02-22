@@ -8,7 +8,7 @@ export const criticalStyles = `
   body{margin:0;line-height:inherit}
   
   /* Gradient backgrounds */
-  .bg-gradient-hero{background:linear-gradient(135deg,#C44F72 0%,#E6B8C8 100%)}
+  .bg-gradient-hero{background:linear-gradient(135deg,#1a1a1a 0%,#262626 50%,#8B1A1A 100%)}
   .bg-gradient-subtle{background:linear-gradient(180deg,hsl(var(--background)) 0%,hsl(var(--muted)) 100%)}
   
   /* Animations */
@@ -27,7 +27,7 @@ export const criticalStyles = `
 
 export const injectCriticalStyles = () => {
   if (typeof document === 'undefined') return;
-  
+
   const style = document.createElement('style');
   style.textContent = criticalStyles;
   document.head.appendChild(style);

@@ -15,18 +15,18 @@ import { Badge } from '@/components/ui/badge';
 const Leaderboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { 
-    loading, 
-    allTimeLeaders, 
-    dailyLeaders, 
-    weeklyLeaders, 
+  const {
+    loading,
+    allTimeLeaders,
+    dailyLeaders,
+    weeklyLeaders,
     monthlyLeaders,
     pagesLeaders,
     booksLeaders,
     streaksLeaders,
     timeLeaders,
     userRankings,
-    comparativeStats 
+    comparativeStats
   } = useLeaderboards();
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const Leaderboard = () => {
   };
 
   const getMetricForType = (leader: any, type: string) => {
-    switch(type) {
+    switch (type) {
       case 'pages': return { value: leader.total_pages_read || 0, metric: 'páginas' };
       case 'books': return { value: leader.books_completed || 0, metric: 'livros' };
       case 'streaks': return { value: leader.longest_streak_days || 0, metric: 'dias de streak' };
@@ -54,13 +54,13 @@ const Leaderboard = () => {
 
   const renderLeaderboardList = (leaders: any[], type: string) => {
     if (!leaders || leaders.length === 0) {
-      const emptyType = type === 'general' ? 'general' : 
-                        type === 'daily' ? 'daily' :
-                        type === 'weekly' ? 'weekly' :
-                        type === 'monthly' ? 'monthly' :
-                        type === 'pages' ? 'pages' :
-                        type === 'books' ? 'books' :
-                        type === 'streaks' ? 'streaks' : 'time';
+      const emptyType = type === 'general' ? 'general' :
+        type === 'daily' ? 'daily' :
+          type === 'weekly' ? 'weekly' :
+            type === 'monthly' ? 'monthly' :
+              type === 'pages' ? 'pages' :
+                type === 'books' ? 'books' :
+                  type === 'streaks' ? 'streaks' : 'time';
       return <EmptyLeaderboardState type={emptyType as any} />;
     }
 
@@ -105,7 +105,7 @@ const Leaderboard = () => {
           </div>
 
           <Skeleton className="h-12 w-full rounded-lg mb-6" />
-          
+
           <div className="space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
               <Skeleton key={i} className="h-24 rounded-lg" />
@@ -196,7 +196,7 @@ const Leaderboard = () => {
             </CardContent>
           </Card>
 
-          <UserStatsComparison 
+          <UserStatsComparison
             stats={[
               {
                 label: 'XP Total',
@@ -250,7 +250,7 @@ const Leaderboard = () => {
               <Flame className="w-4 h-4" />
               <span className="text-xs md:text-sm">Streaks</span>
             </TabsTrigger>
-            <TabsTrigger value="time" className="flex flex-col md:flex-row items-center gap-1 md:gap-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger value="time" className="flex flex-col md:flex-row items-center gap-1 md:gap-2 data-[state=active]:bg-red-600 data-[state=active]:text-white">
               <Clock className="w-4 h-4" />
               <span className="text-xs md:text-sm">Tempo</span>
             </TabsTrigger>

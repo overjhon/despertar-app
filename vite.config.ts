@@ -32,11 +32,11 @@ export default defineConfig(({ mode }) => ({
         type: 'module'
       },
       manifest: {
-        name: `${process.env.VITE_BRAND_NAME || 'Mundo Delas'} - Velas Artesanais`,
-        short_name: process.env.VITE_BRAND_NAME || 'Mundo Delas',
+        name: `${process.env.VITE_BRAND_NAME || 'Despertar da Mulher'}`,
+        short_name: process.env.VITE_BRAND_NAME || 'Despertar da Mulher',
         description: process.env.VITE_PWA_DESCRIPTION || 'Aprenda com ebooks exclusivos. Receitas e técnicas profissionais.',
-        theme_color: '#C44F72',
-        background_color: '#C44F72',
+        theme_color: '#1a1a1a',
+        background_color: '#1a1a1a',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',

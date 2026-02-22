@@ -19,7 +19,7 @@ export const CelebrationScreen = () => {
   useEffect(() => {
     // Confetti - explosão única e rápida
     const colors = ["#8B5CF6", "#EC4899", "#F59E0B"];
-    
+
     // Explosão do centro
     confetti({
       particleCount: 50,
@@ -27,7 +27,7 @@ export const CelebrationScreen = () => {
       origin: { y: 0.6 },
       colors: colors,
     });
-    
+
     // Mini explosões laterais (sutil)
     setTimeout(() => {
       confetti({
@@ -54,7 +54,7 @@ export const CelebrationScreen = () => {
             amount: 100,
             reason: "onboarding_complete",
           });
-          
+
           setRewarded(true);
         } catch (error) {
           console.error("Error awarding rewards:", error);
@@ -67,7 +67,7 @@ export const CelebrationScreen = () => {
 
   useEffect(() => {
     console.log('[Onboarding] Countdown iniciado:', countdown);
-    
+
     // Countdown timer
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -95,7 +95,7 @@ export const CelebrationScreen = () => {
           Tudo Pronto, {firstName}! 🎉
         </h2>
         <p className="text-muted-foreground text-lg">
-          Sua jornada no mundo das velas artesanais começa agora
+          Sua jornada de despertar começa agora
         </p>
       </div>
 

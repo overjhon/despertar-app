@@ -27,7 +27,7 @@ export const bioTemplates = [
   'Apaixonada por velas aromáticas e decoração 🕯️ | Sempre em busca de novas receitas',
   'Mãe, empresária e veleira por hobby 💖 | Aprendendo a arte das velas',
   'Criando momentos especiais através das velas ✨ | DIY enthusiast',
-  'Velas artesanais são minha terapia 🌸 | Compartilhando minha jornada',
+  'O despertar feminino é minha jornada 🌟 | Compartilhando experiências',
   'Transformando cera em arte 🎨 | Amante de fragrâncias únicas',
   'Empreendedora do ramo de velas | Inspiração e criatividade 💡',
   'Faço velas para relaxar e presentear ❤️ | Sempre testando novos aromas',

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Mail, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { emailSchema, passwordSchema } from '@/lib/validation';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo-sem-fundo.png';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPrompt } from '@/components/pwa/NotificationPrompt';
 import { serverRateLimiter } from '@/lib/serverRateLimiter';
@@ -84,10 +84,10 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
-      <Card className="w-full max-w-md border-2 border-primary/20 shadow-[0_20px_60px_-15px_rgba(236,91,164,0.3)] animate-scale-in backdrop-blur-sm bg-card/95">
+      <Card className="w-full max-w-md border-2 border-primary/20 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] animate-scale-in backdrop-blur-sm bg-card/95">
         <CardHeader className="text-center space-y-4 pb-6">
           <div className="flex justify-center">
-            <img src={logo} alt="Mundo Delas" className="w-48 h-auto drop-shadow-md" />
+            <img src={logo} alt="Despertar da Mulher" className="w-48 h-auto drop-shadow-md" />
           </div>
           <CardTitle className="font-heading text-3xl text-primary">Bem-vinda de volta! 💕</CardTitle>
           <CardDescription className="text-base text-muted-foreground">
