@@ -26,14 +26,14 @@ export const CreatePostDialog = ({ onCreatePost }: CreatePostDialogProps) => {
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+
     // Validar tamanho e tipo MIME real
     const validatedFiles: File[] = [];
-    
+
     for (const file of files) {
       const isVideo = file.type.startsWith('video/');
       const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
-      
+
       // Validar tamanho
       if (file.size > maxSize) {
         toast.error(`${file.name} muito grande. Máximo ${isVideo ? '50MB' : '10MB'}`);
@@ -44,7 +44,7 @@ export const CreatePostDialog = ({ onCreatePost }: CreatePostDialogProps) => {
       const { validateImage, validateVideo } = await import('@/lib/fileValidation');
       const validator = isVideo ? validateVideo : validateImage;
       const result = await validator(file);
-      
+
       if (!result.valid) {
         toast.error(`${file.name}: ${result.error}`);
         continue;
@@ -104,7 +104,7 @@ export const CreatePostDialog = ({ onCreatePost }: CreatePostDialogProps) => {
 
       // Criar post
       const result = await onCreatePost(content, mediaUrls);
-      
+
       if (result.success) {
         setContent('');
         setSelectedFiles([]);
@@ -119,7 +119,7 @@ export const CreatePostDialog = ({ onCreatePost }: CreatePostDialogProps) => {
   const renderFormContent = () => (
     <div className="space-y-4 p-1">
       <Textarea
-        placeholder="O que você está criando hoje? Compartilhe suas ideias de velas... 💕"
+        placeholder="O que você está pensando hoje? Compartilhe suas experiências e reflexões... 💕"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         className="min-h-[120px] resize-none"
@@ -132,18 +132,18 @@ export const CreatePostDialog = ({ onCreatePost }: CreatePostDialogProps) => {
         <div className={`grid gap-2 ${previews.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
           {previews.map((preview, index) => {
             const isVideo = selectedFiles[index].type.startsWith('video/');
-            
+
             return (
               <div key={index} className="relative group rounded-lg overflow-hidden">
                 {isVideo ? (
-                  <video 
-                    src={preview} 
-                    controls 
+                  <video
+                    src={preview}
+                    controls
                     className="w-full h-48 object-cover"
                   />
                 ) : (
-                  <img 
-                    src={preview} 
+                  <img
+                    src={preview}
                     alt={`Preview ${index + 1}`}
                     className="w-full h-48 object-cover"
                   />
@@ -253,7 +253,7 @@ export const CreatePostDialog = ({ onCreatePost }: CreatePostDialogProps) => {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button 
+          <Button
             className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg"
             size="lg"
           >
@@ -279,7 +279,7 @@ export const CreatePostDialog = ({ onCreatePost }: CreatePostDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button 
+        <Button
           className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-white shadow-lg"
           size="lg"
         >

@@ -136,13 +136,13 @@ export function EditEbookDialog({ ebook, open, onClose, onSuccess }: EditEbookDi
   useEffect(() => {
     const fetchProductMapping = async () => {
       if (!open) return;
-      
+
       const { data } = await supabase
         .from('product_mappings')
         .select('*')
         .eq('ebook_id', ebook.id)
         .maybeSingle();
-      
+
       if (data) {
         setCurrentProductMapping(data);
         setFormData(prev => ({
@@ -159,7 +159,7 @@ export function EditEbookDialog({ ebook, open, onClose, onSuccess }: EditEbookDi
         }));
       }
     };
-    
+
     fetchProductMapping();
   }, [ebook.id, open]);
 
@@ -300,7 +300,7 @@ export function EditEbookDialog({ ebook, open, onClose, onSuccess }: EditEbookDi
               platform: formData.platform || 'kiwify'
             })
             .eq('id', currentProductMapping.id);
-          
+
           if (mappingError) throw mappingError;
         } else {
           // Create new mapping
@@ -311,7 +311,7 @@ export function EditEbookDialog({ ebook, open, onClose, onSuccess }: EditEbookDi
               product_id: formData.product_id.trim(),
               platform: formData.platform || 'kiwify'
             });
-          
+
           if (mappingError) throw mappingError;
         }
       }
@@ -459,7 +459,7 @@ export function EditEbookDialog({ ebook, open, onClose, onSuccess }: EditEbookDi
               id="tags"
               value={formData.tags}
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="velas, aromaterapia, negócios"
+              placeholder="relacionamento, autoconhecimento, despertar"
             />
           </div>
 

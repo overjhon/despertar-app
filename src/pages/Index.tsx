@@ -161,7 +161,7 @@ const Index = () => {
           <div className="text-white/80 text-sm space-y-2">
             <p className="drop-shadow-md flex items-center justify-center gap-2">
               <span className="text-lg">✨</span>
-              Milhares de artesãs já estão criando
+              Milhares de mulheres já estão despertando
             </p>
             <p className="drop-shadow-md flex items-center justify-center gap-2">
               <span className="text-lg">🔐</span>

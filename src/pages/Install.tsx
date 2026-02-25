@@ -189,7 +189,7 @@ const Install = () => {
           </h1>
 
           <p className="text-lg text-white/90 mb-2 max-w-xl mx-auto">
-            Acesse seus ebooks offline, receba notificações e tenha uma experiência otimizada
+            Acesse seus conteúdos offline, receba notificações e tenha uma experiência otimizada
           </p>
 
           <p className="text-base text-white/80 mb-8 max-w-xl mx-auto">
@@ -351,7 +351,7 @@ const Install = () => {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-primary" />
-                    Notificações de novos ebooks
+                    Notificações de novidades e conexões
                   </li>
                 </ul>
               </div>
@@ -477,7 +477,7 @@ const Install = () => {
                       <span className="w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold">3</span>
                       <div className="flex-1 pt-1">
                         <strong className="text-base">Crie sua conta ou faça login</strong>
-                        <p className="text-muted-foreground mt-1">Dentro do app, você terá acesso a todos os seus ebooks</p>
+                        <p className="text-muted-foreground mt-1">Dentro do app, você terá acesso a todo o conteúdo</p>
                       </div>
                     </li>
                   </ol>
@@ -486,7 +486,7 @@ const Install = () => {
 
               <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">👆 Dica:</strong> O app funciona offline e você receberá notificações de novos ebooks!
+                  <strong className="text-foreground">👆 Dica:</strong> O app funciona offline e você receberá notificações de novidades!
                 </p>
               </div>
             </CardContent>

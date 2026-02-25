@@ -22,7 +22,7 @@ export const MaterialsSection = () => {
         console.error('Error tracking analytics:', error);
       }
     }
-    
+
     window.open(collshopUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -55,11 +55,11 @@ export const MaterialsSection = () => {
               <div>
                 <p className="font-medium text-sm">Produtos Selecionados</p>
                 <p className="text-xs text-muted-foreground">
-                  Ceras, essências, corantes e tudo para suas velas
+                  Livros, cursos e recursos para seu desenvolvimento
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-3 p-3 bg-background/60 rounded-lg backdrop-blur-sm">
               <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
@@ -82,7 +82,7 @@ export const MaterialsSection = () => {
           </div>
 
           {/* CTA Button */}
-          <Button 
+          <Button
             onClick={handleClick}
             size="lg"
             className="w-full gap-2 text-base shadow-glow"

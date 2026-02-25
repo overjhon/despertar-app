@@ -34,14 +34,14 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: `${process.env.VITE_BRAND_NAME || 'Despertar da Mulher'}`,
         short_name: process.env.VITE_BRAND_NAME || 'Despertar da Mulher',
-        description: process.env.VITE_PWA_DESCRIPTION || 'Aprenda com ebooks exclusivos. Receitas e técnicas profissionais.',
+        description: process.env.VITE_PWA_DESCRIPTION || 'Conecte-se, converse e desperte seu potencial feminino.',
         theme_color: '#1a1a1a',
         background_color: '#1a1a1a',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
-        categories: ['education', 'lifestyle', 'books'],
+        categories: ['social', 'lifestyle', 'communication'],
         icons: [
           {
             src: '/web-app-manifest-192x192.png',
@@ -56,6 +56,18 @@ export default defineConfig(({ mode }) => ({
             purpose: 'maskable'
           },
           {
+            src: '/web-app-manifest-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/web-app-manifest-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
             src: '/apple-touch-icon.png',
             sizes: '180x180',
             type: 'image/png'
@@ -65,23 +77,23 @@ export default defineConfig(({ mode }) => ({
           {
             name: 'Minha Biblioteca',
             short_name: 'Biblioteca',
-            description: 'Acesse seus ebooks',
+            description: 'Acesse seus conteúdos',
             url: '/library',
-            icons: [{ src: '/pwa-512x512.png', sizes: '512x512' }]
+            icons: [{ src: '/web-app-manifest-512x512.png', sizes: '512x512' }]
           },
           {
             name: 'Comunidade',
             short_name: 'Comunidade',
-            description: 'Compartilhe criações',
+            description: 'Conecte-se com outras mulheres',
             url: '/community',
-            icons: [{ src: '/pwa-512x512.png', sizes: '512x512' }]
+            icons: [{ src: '/web-app-manifest-512x512.png', sizes: '512x512' }]
           },
           {
             name: 'Desafios',
             short_name: 'Desafios',
             description: 'Participe de desafios',
             url: '/challenges',
-            icons: [{ src: '/pwa-512x512.png', sizes: '512x512' }]
+            icons: [{ src: '/web-app-manifest-512x512.png', sizes: '512x512' }]
           }
         ]
       },

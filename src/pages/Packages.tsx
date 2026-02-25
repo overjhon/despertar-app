@@ -96,8 +96,8 @@ export default function Packages() {
             <Badge variant="destructive" className="mb-4 text-lg px-6 py-2 animate-pulse">
               MELHOR VALOR 🎁
             </Badge>
-            <h1 className="text-4xl font-bold mb-2">Pacote Mestra das Velas</h1>
-            <p className="text-muted-foreground text-lg">A coleção completa para transformar seu negócio de velas</p>
+            <h1 className="text-4xl font-bold mb-2">Pacote Despertar Completo</h1>
+            <p className="text-muted-foreground text-lg">A coleção completa para transformar sua jornada de despertar</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-8">
@@ -162,7 +162,7 @@ export default function Packages() {
                   </div>
                   <div className="flex items-start gap-3">
                     <Badge className="bg-primary">5</Badge>
-                    <p className="text-sm">Badge especial "Mestra das Velas" 👑</p>
+                    <p className="text-sm">Badge especial "Especialista Despertar" 👑</p>
                   </div>
                 </div>
               </Card>
@@ -182,8 +182,8 @@ export default function Packages() {
 
           <Card className="p-8 bg-gradient-primary text-primary-foreground">
             <div className="text-center space-y-4">
-              <h3 className="text-2xl font-bold">Pronta para se tornar uma Mestra das Velas?</h3>
-              <p className="text-lg opacity-90">Junte-se a mais de 500 artesãs que já transformaram seus negócios</p>
+              <h3 className="text-2xl font-bold">Pronta para iniciar sua jornada de despertar?</h3>
+              <p className="text-lg opacity-90">Junte-se a mais de 500 mulheres que já transformaram suas vidas</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-6">
                 <Button
                   size="lg"

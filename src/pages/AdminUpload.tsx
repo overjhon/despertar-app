@@ -350,7 +350,7 @@ const AdminUpload = () => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    placeholder="Ex: 50 Receitas Exclusivas de Velas Gourmet"
+                    placeholder="Ex: Guia Completo de Relacionamentos"
                   />
                 </div>
 
@@ -403,7 +403,7 @@ const AdminUpload = () => {
                     id="tags"
                     value={tags}
                     onChange={(e) => setTags(e.target.value)}
-                    placeholder="Ex: velas, receitas, gourmet, aromatização"
+                    placeholder="Ex: relacionamento, autoconhecimento, despertar"
                   />
                 </div>
 

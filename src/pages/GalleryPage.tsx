@@ -22,14 +22,14 @@ export const GalleryPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedFile) return;
 
     const urls = await uploadMedia([selectedFile]);
     if (urls.length === 0) return;
 
     const result = await createCreation(title, description, urls[0], null, difficulty);
-    
+
     if (result.success) {
       setOpen(false);
       setTitle('');
@@ -50,7 +50,7 @@ export const GalleryPage = () => {
           <div>
             <h1 className="text-3xl font-bold mb-2">Galeria de Criações</h1>
             <p className="text-muted-foreground">
-              Veja o que outras artesãs criaram com nossos ebooks
+              Veja o que outras mulheres criaram com nossos conteúdos
             </p>
           </div>
 
@@ -69,7 +69,7 @@ export const GalleryPage = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Foto da Vela</label>
+                    <label className="text-sm font-medium mb-2 block">Foto da Criação</label>
                     <Input
                       type="file"
                       accept="image/*"
@@ -83,7 +83,7 @@ export const GalleryPage = () => {
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      placeholder="Nome da sua vela"
+                      placeholder="Nome da sua criação"
                       required
                     />
                   </div>
