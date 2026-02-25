@@ -218,11 +218,9 @@ const AdminUpload = () => {
         samplePath = sanitizedFileName;
       }
 
-      // Get public URLs
-      const { data: { publicUrl: pdfUrl } } = supabase.storage
-        .from('ebooks')
-        .getPublicUrl(pdfPath);
-
+      // Get URLs - covers e samples são buckets públicos, ebooks é privado
+      // Para o bucket privado 'ebooks', salvamos apenas o path relativo
+      // e geramos signed URLs na hora da leitura
       const { data: { publicUrl: coverUrl } } = supabase.storage
         .from('covers')
         .getPublicUrl(coverPath);
@@ -244,7 +242,7 @@ const AdminUpload = () => {
           tags: tags ? tags.split(',').map(t => t.trim()) : null,
           total_pages: parseInt(totalPages),
           estimated_reading_time: estimatedReadingTime ? parseInt(estimatedReadingTime) : null,
-          pdf_url: pdfUrl,
+          pdf_url: pdfPath, // Path relativo no bucket privado 'ebooks'
           cover_url: coverUrl,
           sample_pdf_url: sampleUrl,
           is_active: true

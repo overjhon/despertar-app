@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, BookOpen, Lock, ShoppingCart } from 'lucide-react';
 import { PDFPageViewer } from '@/components/reader/PDFPageViewer';
 import { trackInitiateCheckout } from '@/lib/facebookPixel';
-import { getPublicPdfUrl, validatePdfUrl } from '@/lib/pdfUtils';
+import { getPublicPdfUrl, getSignedPdfUrl } from '@/lib/pdfUtils';
 import { useToast } from '@/hooks/use-toast';
 import { validateUUIDParam } from '@/lib/validation';
 
@@ -15,7 +15,6 @@ const SampleReader = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const debugMode = new URLSearchParams(window.location.search).get('debug') === '1';
 
   // Validar UUID antes de usar
   const id = validateUUIDParam(rawId, 'ebook_id');
@@ -25,30 +24,12 @@ const SampleReader = () => {
   const [sampleMaxPage, setSampleMaxPage] = useState(1);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  // Fallback local por ID (modo depuração)
-  const getLocalPdfById = (ebookId: string | null): string | null => {
-    switch (ebookId) {
-      case '3fa85f64-5717-4562-b3fc-2c963f66afa6':
-        return '/ebooks/3fa85f64-5717-4562-b3fc-2c963f66afa6/Velas-Terapeuticas-A-Linha-Funcional-Que-Fatura-3x-Mais.pdf';
-      case '6ba7b810-9dad-11d1-80b4-00c04fd430c8':
-        return '/ebooks/6ba7b810-9dad-11d1-80b4-00c04fd430c8/Velas_Sazonais_compressed.pdf';
-      case '7c9e6679-7425-40de-944b-e07fc1f90ae7':
-        return '/ebooks/7c9e6679-7425-40de-944b-e07fc1f90ae7/Velas-que-Vendem.pdf';
-      case 'f47ac10b-58cc-4372-a567-0e02b2c3d479':
-        return '/ebooks/f47ac10b-58cc-4372-a567-0e02b2c3d479/50-Receitas-Exclusivas-de-Velas-Gourmet.pdf';
-      default:
-        return null;
-    }
-  };
+
 
   useEffect(() => {
     if (!user) {
-      if (debugMode) {
-        console.warn('🧪 Debug: sem usuário autenticado, seguindo sem redirecionar');
-      } else {
-        navigate('/login');
-        return;
-      }
+      navigate('/login');
+      return;
     }
 
     if (!id) {
@@ -58,16 +39,6 @@ const SampleReader = () => {
         description: "O link do ebook está incorreto.",
         variant: "destructive",
       });
-      if (debugMode) {
-        // Em debug, tentar fallback local por ID se disponível
-        const local = getLocalPdfById(null);
-        if (local) {
-          setEbook({ id: 'local-debug', title: 'Amostra Local (Debug)', total_pages: 200, purchase_url: null });
-          setPdfUrl(local);
-          setLoading(false);
-          return;
-        }
-      }
       navigate('/library');
       return;
     }
@@ -85,19 +56,6 @@ const SampleReader = () => {
 
       if (error || !data) {
         console.error('❌ Ebook não encontrado:', id, error);
-        if (debugMode) {
-          console.warn('🧪 Debug: usando fallback local por ID');
-          const local = getLocalPdfById(id);
-          if (local) {
-            setEbook({ id, title: 'Amostra Local (Debug)', total_pages: 200, purchase_url: null });
-            const isValid = await validatePdfUrl(local);
-            if (isValid) {
-              setPdfUrl(local);
-              setLoading(false);
-              return;
-            }
-          }
-        }
         toast({
           title: "Ebook não encontrado",
           description: "Este ebook não existe ou foi removido.",
@@ -113,53 +71,31 @@ const SampleReader = () => {
       const maxPage = Math.ceil(data.total_pages * 0.2);
       setSampleMaxPage(maxPage);
 
-      // Gerar URL pública para o PDF (bucket 'samples' é público)
+      // Estratégia: se tem sample_pdf_url, usar URL pública do bucket 'samples'
+      // Se não tem, usar o PDF principal via signed URL com limite de páginas
       if (data?.sample_pdf_url) {
         const pdfPath = data.sample_pdf_url;
         const publicUrl = getPublicPdfUrl(pdfPath, 'samples');
 
         console.log('🔓 Usando URL pública para sample:', publicUrl);
+        setPdfUrl(publicUrl);
+      } else if (data?.pdf_url) {
+        // Sem sample dedicado: usar PDF principal via signed URL
+        // O limite de páginas é controlado pelo componente PDFPageViewer (maxPages)
+        console.log('📖 Sem sample dedicado, usando PDF principal com limite de páginas');
+        const signedUrl = await getSignedPdfUrl(data.pdf_url);
 
-        // Validar URL antes de usar
-        const isValid = await validatePdfUrl(publicUrl);
-
-        if (isValid) {
-          setPdfUrl(publicUrl);
-          console.log('✅ URL do PDF sample obtida');
+        if (signedUrl) {
+          setPdfUrl(signedUrl);
+          console.log('✅ URL assinada para amostra obtida');
         } else {
-          console.warn('⚠️ URL de PDF sample inválida, tentando URL original');
-          const originalValid = await validatePdfUrl(pdfPath);
-          if (originalValid) {
-            setPdfUrl(pdfPath);
-          } else if (debugMode) {
-            // Em debug, usar fallback local por ID
-            const local = getLocalPdfById(id);
-            if (local) {
-              const localValid = await validatePdfUrl(local);
-              if (localValid) {
-                console.log('✅ Fallback local (debug) válido');
-                setPdfUrl(local);
-              }
-            }
-          }
+          console.error('❌ Falha ao gerar URL assinada para amostra');
         }
       } else {
-        console.warn('⚠️ Ebook não possui sample_pdf_url configurado');
+        console.warn('⚠️ Ebook não possui nem sample_pdf_url nem pdf_url configurado');
       }
     } catch (error) {
       console.error('Error fetching ebook:', error);
-      if (debugMode) {
-        const local = getLocalPdfById(id);
-        if (local) {
-          setEbook({ id, title: 'Amostra Local (Debug)', total_pages: 200, purchase_url: null });
-          const isValid = await validatePdfUrl(local);
-          if (isValid) {
-            setPdfUrl(local);
-            setLoading(false);
-            return;
-          }
-        }
-      }
     } finally {
       setLoading(false);
     }
@@ -228,7 +164,7 @@ const SampleReader = () => {
   }
 
   // Usar URL pública validada
-  const pdfUrlToRender = pdfUrl || ebook.sample_pdf_url || ebook.pdf_url;
+  const pdfUrlToRender = pdfUrl;
   const isLimitedSample = !ebook.sample_pdf_url; // Se não tem amostra dedicada, limitar a 20%
 
   return (

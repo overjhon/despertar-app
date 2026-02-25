@@ -99,26 +99,34 @@ export const getSignedPdfUrl = async (
   const sanitized = sanitizePdfPath(pdfPath);
   if (!sanitized) return null;
 
-  // Se já for uma URL completa com token, retornar diretamente
+  // Se já for uma URL assinada válida (com token), retornar diretamente
   if (isValidHttpUrl(sanitized) && sanitized.includes('token=')) {
     console.log('✅ PDF já é URL assinada:', sanitized);
     return sanitized;
   }
 
-  // Limpar path (remover prefixos de bucket)
-  const cleanPath = sanitized
+  // Extrair o path relativo do bucket
+  let finalPath = sanitized;
+
+  // Se for uma URL completa, extrair apenas o path relativo
+  if (isValidHttpUrl(sanitized)) {
+    try {
+      const url = new URL(sanitized);
+      // Match tanto /object/public/ebooks/ quanto /object/sign/ebooks/
+      const match = url.pathname.match(/\/storage\/v1\/object\/(?:public|sign)\/ebooks\/(.+)/);
+      if (match) {
+        finalPath = decodeURIComponent(match[1]);
+        console.log('📋 Path extraído da URL pública:', finalPath);
+      } else {
+        console.warn('⚠️ URL não contém path reconhecível de bucket ebooks:', sanitized);
+      }
+    } catch { /* usa sanitized como está */ }
+  }
+
+  // Limpar prefixos residuais de bucket
+  finalPath = finalPath
     .replace(/^\/ebooks\//, '')
     .replace(/^ebooks\//, '');
-
-  // Se for URL pública completa, extrair só o path
-  let finalPath = cleanPath;
-  if (isValidHttpUrl(cleanPath)) {
-    try {
-      const url = new URL(cleanPath);
-      const match = url.pathname.match(/\/storage\/v1\/object\/public\/ebooks\/(.+)/);
-      if (match) finalPath = decodeURIComponent(match[1]);
-    } catch { /* usa cleanPath como está */ }
-  }
 
   console.log('🔐 Gerando URL assinada para:', finalPath);
 

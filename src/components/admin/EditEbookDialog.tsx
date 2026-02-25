@@ -197,6 +197,12 @@ export function EditEbookDialog({ ebook, open, onClose, onSuccess }: EditEbookDi
 
     if (error) throw error;
 
+    // Para bucket privado 'ebooks', retornar apenas o path relativo
+    // Para buckets públicos (covers, samples), retornar URL pública
+    if (bucket === 'ebooks') {
+      return data.path;
+    }
+
     const { data: { publicUrl } } = supabase.storage
       .from(bucket)
       .getPublicUrl(data.path);
@@ -239,8 +245,9 @@ export function EditEbookDialog({ ebook, open, onClose, onSuccess }: EditEbookDi
       }
 
       if (newPdf) {
-        const url = await uploadFile(newPdf, 'ebooks');
-        if (url) pdfUrl = url;
+        // Para ebooks, uploadFile retorna o path relativo (bucket privado)
+        const path = await uploadFile(newPdf, 'ebooks');
+        if (path) pdfUrl = path;
       }
 
       if (newSample) {

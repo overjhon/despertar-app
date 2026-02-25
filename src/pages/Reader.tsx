@@ -10,7 +10,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { useBadges } from '@/hooks/useBadges';
 import { useChallenges } from '@/hooks/useChallenges';
 import { PDFPageViewer } from '@/components/reader/PDFPageViewer';
-import { getSignedPdfUrl, validatePdfUrl } from '@/lib/pdfUtils';
+import { getSignedPdfUrl } from '@/lib/pdfUtils';
 import { validateUUIDParam } from '@/lib/validation';
 
 const Reader = () => {
@@ -114,48 +114,22 @@ const Reader = () => {
 
       setEbook(ebookData);
 
-      // Usar URL assinada (bucket privado) com validação e fallback local
+      // Gerar URL assinada (bucket privado) para leitura segura
       if (ebookData?.pdf_url) {
-        const pickLocalFallback = (title: string) => {
-          const t = (title || '').toLowerCase();
-          if (t.includes('terap')) return '/ebooks/3fa85f64-5717-4562-b3fc-2c963f66afa6/Velas-Terapeuticas-A-Linha-Funcional-Que-Fatura-3x-Mais.pdf';
-          if (t.includes('sazon')) return '/ebooks/6ba7b810-9dad-11d1-80b4-00c04fd430c8/Velas_Sazonais_compressed.pdf';
-          if (t.includes('vend')) return '/ebooks/7c9e6679-7425-40de-944b-e07fc1f90ae7/Velas-que-Vendem.pdf';
-          if (t.includes('gourmet') || t.includes('50')) return '/ebooks/f47ac10b-58cc-4372-a567-0e02b2c3d479/50-Receitas-Exclusivas-de-Velas-Gourmet.pdf';
-          return null;
-        };
-
         // Gerar URL assinada (expira em 1h) - requer usuário logado
         const signedUrl = await getSignedPdfUrl(ebookData.pdf_url);
 
-        console.log('🔐 Usando URL assinada para PDF');
-
-        // Validar URL antes de usar
-        const isValid = signedUrl ? await validatePdfUrl(signedUrl) : false;
-
-        if (isValid && signedUrl) {
+        if (signedUrl) {
+          console.log('✅ URL assinada gerada com sucesso para:', ebookData.title);
           setPdfUrl(signedUrl);
           setError(null);
         } else {
-          // Fallback para URL local se existir
-          console.warn('⚠️ PDF remoto não acessível, tentando fallback local para:', ebookData.title);
-          const local = pickLocalFallback(ebookData.title);
-          if (local) {
-            console.log('📁 Testando PDF local:', local);
-            const isLocalValid = await validatePdfUrl(local);
-            if (isLocalValid) {
-              console.log('✅ PDF local encontrado e válido');
-              setPdfUrl(local);
-              setError(null);
-            } else {
-              console.error('❌ PDF local também não está disponível');
-              setError('PDF não encontrado. Este ebook pode ter sido removido ou estar temporariamente indisponível.');
-            }
-          } else {
-            console.error('❌ Nenhum fallback local disponível para este ebook');
-            setError('PDF não encontrado. Este ebook pode ter sido removido ou estar temporariamente indisponível.');
-          }
+          console.error('❌ Falha ao gerar URL assinada para:', ebookData.title);
+          setError('PDF não encontrado. Este ebook pode ter sido removido ou estar temporariamente indisponível.');
         }
+      } else {
+        console.error('❌ Ebook sem pdf_url configurado:', ebookData.id);
+        setError('Este ebook não possui conteúdo disponível no momento.');
       }
 
       const { data: progressData } = await supabase
