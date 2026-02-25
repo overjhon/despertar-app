@@ -38,6 +38,7 @@ interface Ebook {
   original_price: number | null;
   current_price: number | null;
   discount_percentage: number | null;
+  is_free: boolean;
 }
 
 interface UserProgress {
@@ -51,7 +52,7 @@ const EbookDetail = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   // Validar UUID antes de usar
   const id = validateUUIDParam(rawId, 'ebook_id');
   const [ebook, setEbook] = useState<Ebook | null>(null);
@@ -63,7 +64,7 @@ const EbookDetail = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
   const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
-  
+
   const { testimonials, createTestimonial } = useTestimonials();
   const { addXP } = useXP();
   const { trackClick } = usePurchaseTracking();
@@ -87,7 +88,7 @@ const EbookDetail = () => {
       navigate("/login");
       return;
     }
-    
+
     if (!id) {
       console.error('❌ ID de ebook inválido na URL');
       toast({
@@ -98,7 +99,7 @@ const EbookDetail = () => {
       navigate('/library');
       return;
     }
-    
+
     fetchEbookDetails();
     fetchTestimonialStats();
   }, [user, id, navigate]);
@@ -112,7 +113,7 @@ const EbookDetail = () => {
 
   const fetchTestimonialStats = async () => {
     if (!id) return;
-    
+
     try {
       const { data, error } = await supabase
         .from('testimonials')
@@ -170,8 +171,17 @@ const EbookDetail = () => {
         throw purchaseError;
       }
 
-      const hasPurchased = !!purchaseData;
+      const isFreeEbook = !!ebookData.is_free;
+      const hasPurchased = !!purchaseData || isFreeEbook;
       setIsPurchased(hasPurchased);
+
+      // Auto-inserir em user_ebooks ebooks gratuitos para rastrear progresso
+      if (isFreeEbook && !purchaseData) {
+        await supabase.from('user_ebooks').upsert(
+          { user_id: user!.id, ebook_id: id, purchased_at: new Date().toISOString() },
+          { onConflict: 'user_id,ebook_id', ignoreDuplicates: true }
+        );
+      }
 
       if (hasPurchased) {
         const { data: progressData, error: progressError } = await supabase
@@ -231,21 +241,21 @@ const EbookDetail = () => {
       });
       return;
     }
-    
+
     setIsPurchaseLoading(true);
     try {
       await trackClick(ebook.id);
       trackInitiateCheckout(ebook.current_price || undefined);
-      
+
       const newWindow = window.open(ebook.purchase_url, '_blank', 'noopener,noreferrer');
-      
+
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
         toast({
           title: "⚠️ Pop-up bloqueado",
           description: "Clique abaixo para abrir o checkout",
           action: (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={() => window.location.href = ebook.purchase_url!}
             >
               Abrir Checkout
@@ -299,8 +309,8 @@ const EbookDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle pb-24 md:pb-0">
-      {!isPurchased && ebook.purchase_url && ebook.current_price && (
-        <ExitIntentModal 
+      {!isPurchased && !ebook.is_free && ebook.purchase_url && ebook.current_price && (
+        <ExitIntentModal
           ebookTitle={ebook.title}
           currentPrice={ebook.current_price}
           purchaseUrl={ebook.purchase_url}
@@ -322,12 +332,19 @@ const EbookDetail = () => {
           <div className="md:col-span-1 animate-scale-in">
             <Card className="overflow-hidden shadow-lg md:sticky md:top-24">
               <div className="aspect-[2/3] relative">
-                {!isPurchased && ebook.discount_percentage && (
-                  <Badge 
-                    variant="destructive" 
+                {!isPurchased && ebook.discount_percentage && !ebook.is_free && (
+                  <Badge
+                    variant="destructive"
                     className="absolute top-4 left-4 z-10 text-base px-4 py-2 animate-pulse"
                   >
                     -{ebook.discount_percentage}% OFF 🔥
+                  </Badge>
+                )}
+                {ebook.is_free && (
+                  <Badge
+                    className="absolute top-4 left-4 z-10 text-base px-4 py-2 bg-green-600 hover:bg-green-600"
+                  >
+                    Gratuito 🎁
                   </Badge>
                 )}
                 <img
@@ -335,7 +352,7 @@ const EbookDetail = () => {
                   alt={ebook.title}
                   className="w-full h-full object-cover"
                 />
-                {!isPurchased && (
+                {!isPurchased && !ebook.is_free && (
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm">
                     <div className="text-center">
                       <Lock className="w-16 h-16 mx-auto mb-3 text-white" />
@@ -373,11 +390,10 @@ const EbookDetail = () => {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <Star
                           key={star}
-                          className={`w-4 h-4 ${
-                            star <= Math.round(avgRating)
-                              ? 'fill-primary text-primary'
-                              : 'text-muted-foreground'
-                          }`}
+                          className={`w-4 h-4 ${star <= Math.round(avgRating)
+                            ? 'fill-primary text-primary'
+                            : 'text-muted-foreground'
+                            }`}
                         />
                       ))}
                     </div>
@@ -389,7 +405,7 @@ const EbookDetail = () => {
               </div>
             </div>
 
-            {!isPurchased && ebook.original_price && ebook.current_price && ebook.discount_percentage && (
+            {!isPurchased && !ebook.is_free && ebook.original_price && ebook.current_price && ebook.discount_percentage && (
               <Card className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 border-2 border-primary/30 shadow-elegant overflow-hidden">
                 <CardContent className="pt-6 space-y-6">
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-border/50">
@@ -500,32 +516,31 @@ const EbookDetail = () => {
               )}
             </div>
 
-          {ebook.description && (
-            <Card className="shadow-sm">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold mb-3">Sobre o ebook</h3>
-                <div className="relative">
-                  <p className={`text-muted-foreground leading-relaxed transition-all duration-300 ${
-                    isDescriptionExpanded 
-                      ? '' 
+            {ebook.description && (
+              <Card className="shadow-sm">
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold mb-3">Sobre o ebook</h3>
+                  <div className="relative">
+                    <p className={`text-muted-foreground leading-relaxed transition-all duration-300 ${isDescriptionExpanded
+                      ? ''
                       : 'line-clamp-3 md:line-clamp-5'
-                  }`}>
-                    {ebook.description}
-                  </p>
-                  {ebook.description.length > 200 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                      className="mt-2 text-primary hover:text-primary/80"
-                    >
-                      {isDescriptionExpanded ? 'Ver menos ↑' : 'Ver mais ↓'}
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                      }`}>
+                      {ebook.description}
+                    </p>
+                    {ebook.description.length > 200 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                        className="mt-2 text-primary hover:text-primary/80"
+                      >
+                        {isDescriptionExpanded ? 'Ver menos ↑' : 'Ver mais ↓'}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <LiveActivityWidget ebookId={id!} />
 
@@ -544,18 +559,17 @@ const EbookDetail = () => {
                   {ebookTestimonials.slice(0, 3).map((testimonial) => (
                     <Card key={testimonial.id} className="p-4">
                       <div className="flex items-start gap-3">
-                      <div className="flex-1">
+                        <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <span className="font-semibold">{testimonial.profiles?.full_name || 'Usuária'}</span>
                             <div className="flex">
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
                                   key={star}
-                                  className={`w-3 h-3 ${
-                                    star <= testimonial.rating
-                                      ? 'fill-primary text-primary'
-                                      : 'text-muted-foreground'
-                                  }`}
+                                  className={`w-3 h-3 ${star <= testimonial.rating
+                                    ? 'fill-primary text-primary'
+                                    : 'text-muted-foreground'
+                                    }`}
                                 />
                               ))}
                             </div>
@@ -600,7 +614,7 @@ const EbookDetail = () => {
                   )}
                 </Button>
               ) : (
-                <Button 
+                <Button
                   onClick={handleViewSample}
                   size="lg"
                   variant="outline"
@@ -647,7 +661,7 @@ const EbookDetail = () => {
               )}
             </Button>
           ) : (
-            <Button 
+            <Button
               onClick={handleViewSample}
               size="lg"
               variant="outline"
