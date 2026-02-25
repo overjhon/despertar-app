@@ -20,6 +20,7 @@ import { ExternalLink } from "lucide-react";
 import { trackViewContent, trackInitiateCheckout } from "@/lib/facebookPixel";
 import { useToast } from "@/hooks/use-toast";
 import { validateUUIDParam } from "@/lib/validation";
+import { WhatsAppPopup } from "@/components/WhatsAppPopup";
 
 interface Ebook {
   id: string;
@@ -64,6 +65,7 @@ const EbookDetail = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
   const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
+  const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false);
 
   const { testimonials, createTestimonial } = useTestimonials();
   const { addXP } = useXP();
@@ -181,6 +183,19 @@ const EbookDetail = () => {
           { user_id: user!.id, ebook_id: id, purchased_at: new Date().toISOString() },
           { onConflict: 'user_id,ebook_id', ignoreDuplicates: true }
         );
+      }
+
+      // Se ebook é gratuito e o user veio do Google, verificar se já tem WhatsApp
+      if (isFreeEbook && user?.app_metadata?.provider === 'google') {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('whatsapp')
+          .eq('id', user.id)
+          .single();
+
+        if (!profile?.whatsapp) {
+          setShowWhatsAppPopup(true);
+        }
       }
 
       if (hasPurchased) {
@@ -673,6 +688,15 @@ const EbookDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Popup de WhatsApp para usuários Google */}
+      {user && (
+        <WhatsAppPopup
+          open={showWhatsAppPopup}
+          onOpenChange={setShowWhatsAppPopup}
+          userId={user.id}
+        />
+      )}
     </div>
   );
 };

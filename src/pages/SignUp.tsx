@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { emailSchema, passwordSchema, fullNameSchema } from '@/lib/validation';
 import { serverRateLimiter } from '@/lib/serverRateLimiter';
@@ -17,6 +17,7 @@ import { SocialLoginButton } from '@/components/auth/SocialLoginButton';
 const SignUp = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -58,11 +59,15 @@ const SignUp = () => {
       return;
     }
 
+    // Extrair apenas dígitos do WhatsApp
+    const whatsappDigits = whatsapp.replace(/\D/g, '');
+
     setLoading(true);
     const { error } = await signUp(
       emailValidation.data,
       passwordValidation.data,
-      nameValidation.data
+      nameValidation.data,
+      whatsappDigits || undefined
     );
 
     if (error) {
@@ -137,7 +142,7 @@ const SignUp = () => {
           </div>
         </CardContent>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <CardContent className="space-y-4 pt-0">
             {error && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
@@ -155,6 +160,7 @@ const SignUp = () => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="pl-10 h-11"
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -170,7 +176,29 @@ const SignUp = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-11"
+                  autoComplete="off"
                   required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp <span className="text-muted-foreground text-xs">(opcional)</span></Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                <Input
+                  id="whatsapp"
+                  type="tel"
+                  placeholder="(11) 99999-9999"
+                  value={whatsapp}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+                    let formatted = digits;
+                    if (digits.length > 2) formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+                    if (digits.length > 7) formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+                    setWhatsapp(formatted);
+                  }}
+                  className="pl-10 h-11"
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -185,6 +213,7 @@ const SignUp = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 h-11"
+                  autoComplete="new-password"
                   required
                 />
               </div>

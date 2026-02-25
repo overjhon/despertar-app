@@ -108,7 +108,7 @@ const Login = () => {
           </div>
         </CardContent>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <CardContent className="space-y-4 pt-0">
             {error && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
@@ -126,7 +126,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-11"
-                  autoComplete="email"
+                  autoComplete="off"
                   required
                 />
               </div>
@@ -142,7 +142,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 h-11"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                 />
               </div>
